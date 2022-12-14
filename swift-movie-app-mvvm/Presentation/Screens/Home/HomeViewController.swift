@@ -20,9 +20,8 @@ class HomeViewController: UIViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Home"
+        navigationController?.navigationBar.prefersLargeTitles = true
         viewModel?.initialize()
-        
     }
     
     @objc private func onNavBarTap(){
@@ -66,6 +65,17 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
                 self?.reloadTableView()
             }
         }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let vc = storyboard?.instantiateViewController(withIdentifier: "DetailsViewController") as? DetailsViewController else { return }
+        
+            if let id = viewModel?.currentMovies[indexPath.row].id{
+                vc.viewModel = DetailsViewModel()
+                vc.movieId = id
+                navigationController?.pushViewController(vc, animated: true)
+        }
+
     }
     
 }

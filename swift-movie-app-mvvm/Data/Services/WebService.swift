@@ -38,7 +38,6 @@ struct WebService{
                 }
                 else if let data = data {
                     do{
-                        print(url.absoluteString)
                         let movie = try JSONDecoder().decode(Result.self, from: data)
                         completion(movie)
                     }
