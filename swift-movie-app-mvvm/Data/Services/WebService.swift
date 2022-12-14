@@ -27,7 +27,6 @@ struct WebService{
                     
                 }
             }.resume()
-        
     }
     
     func getMovie(url : URL, completion : @escaping (Result?)->() ){

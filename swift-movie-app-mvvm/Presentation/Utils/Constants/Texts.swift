@@ -8,5 +8,5 @@
 import Foundation
 
 final class AppTexts {
-    static let emptyText : String = "Sorry, no result have been found."
+    static let emptyText : String = "Sorry, no result has been found."
 }

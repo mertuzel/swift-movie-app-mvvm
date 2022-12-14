@@ -60,7 +60,9 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         guard let viewModel = viewModel else { return }
+        
         if viewModel.currentMovies.count-1 == indexPath.row{
+            fetchMoreIndicator(to: true)
             viewModel.loadCurrentMovies { [ weak self] in
                 self?.reloadTableView()
             }
