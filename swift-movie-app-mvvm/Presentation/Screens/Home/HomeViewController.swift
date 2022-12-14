@@ -7,8 +7,8 @@
 
 import UIKit
 
-class HomeViewController: UIViewController{
-    @IBOutlet weak var tableView: UITableView!
+final class HomeViewController: UIViewController{
+    @IBOutlet private weak var tableView: UITableView!
     
     var viewModel : HomeViewModelProtocol? {
         didSet{
@@ -16,7 +16,7 @@ class HomeViewController: UIViewController{
         }
     }
     
-    var loadingIndicator : UIActivityIndicatorView?
+    private var loadingIndicator : UIActivityIndicatorView?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -81,14 +81,23 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
 }
 
 extension HomeViewController : HomeViewModelDelegate, IndicatorProtocol{
+    func showEmptyMessage() {
+        DispatchQueue.main.async { [weak self] in
+            self?.tableView.setEmptyMessage(message: AppTexts.emptyText)
+        }
+    }
+    
     func changeFullPageLoadingStatus(to value: Bool) {
-        if value {
-            showIndicator()
+        DispatchQueue.main.async { [weak self] in
+            if value {
+                self?.showIndicator()
+            }
+            
+            else {
+                self?.hideIndicator()
+            }
         }
-        
-        else {
-            hideIndicator()
-        }
+       
     }
     
     func prepareTableView() {
@@ -128,3 +137,4 @@ extension HomeViewController : HomeViewModelDelegate, IndicatorProtocol{
         
     }
 }
+

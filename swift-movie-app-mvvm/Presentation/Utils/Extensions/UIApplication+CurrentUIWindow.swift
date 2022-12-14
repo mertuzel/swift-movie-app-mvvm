@@ -1,6 +1,6 @@
 import UIKit
 
-public extension UIApplication {
+extension UIApplication {
     func currentUIWindow() -> UIWindow? {
         let connectedScenes = UIApplication.shared.connectedScenes
             .filter { $0.activationState == .foregroundActive }

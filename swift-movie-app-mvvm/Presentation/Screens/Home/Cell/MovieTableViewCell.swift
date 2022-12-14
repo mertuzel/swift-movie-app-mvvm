@@ -10,9 +10,9 @@ import SDWebImage
 
 final class MovieTableViewCell: UITableViewCell {
     
-    @IBOutlet weak var movieImage: UIImageView!
-    @IBOutlet weak var movieTitle: UILabel!
-    @IBOutlet weak var movieDescription: UILabel!
+    @IBOutlet private weak var movieImage: UIImageView!
+    @IBOutlet private weak var movieTitle: UILabel!
+    @IBOutlet private weak var movieDescription: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -27,7 +27,6 @@ final class MovieTableViewCell: UITableViewCell {
     
     func initializeCell(imageUrl : String?, title : String?, description : String?){
         guard let imageUrl = imageUrl,let title = title, let description = description else {return}
-        
         
         movieTitle.text = title
         movieDescription.text = description

@@ -24,6 +24,7 @@ protocol HomeViewModelDelegate{
     func setLoadingIndicator()
     func setGestureRecognizer()
     func changeFullPageLoadingStatus(to value : Bool)
+    func showEmptyMessage()
 }
 
 final class HomeViewModel : HomeViewModelProtocol{
@@ -63,9 +64,9 @@ final class HomeViewModel : HomeViewModelProtocol{
     
     func loadCurrentMovies(completion: @escaping () -> Void) {
         if(!isAllFetched){
-            let urlString = MovieEndpoint.movies(page: currentPage, upcoming: false).url
+            guard let url = URL(string:MovieEndpoint.movies(page: currentPage, upcoming: false).url) else { return }
             
-            WebService.shared.getMovies(url: URL(string:urlString)!) { [weak self] movie in
+            WebService.shared.getMovies(url: url) { [weak self] movie in
                 if let movie = movie, let results = movie.results, !results.isEmpty {
                     self?.currentPage+=1
                     self?.currentMovies += results
@@ -75,14 +76,20 @@ final class HomeViewModel : HomeViewModelProtocol{
                 
                 self?.isAllFetched = true
                 self?.delegate?.fetchMoreIndicator(to: false)
+                
+                if ((self?.currentMovies.isEmpty) != nil) {
+                    self?.delegate?.showEmptyMessage()
+                }
+                
+                self?.delegate?.changeFullPageLoadingStatus(to: false)
             }
         }
     }
     
     func loadUpcomingMovies(completion: @escaping () -> Void) {
-        let urlString = MovieEndpoint.movies(page: currentPage, upcoming: true).url
+        guard let url = URL(string:MovieEndpoint.movies(page: currentPage, upcoming: true).url) else { return }
         
-        WebService.shared.getMovies(url: URL(string:urlString)!) { [weak self] movie in
+        WebService.shared.getMovies(url: url) { [weak self] movie in
             if let movie = movie, let results = movie.results, !results.isEmpty {
                 self?.upcomingMovies += results
                 completion()

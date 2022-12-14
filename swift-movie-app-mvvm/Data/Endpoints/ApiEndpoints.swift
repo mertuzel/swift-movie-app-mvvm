@@ -17,18 +17,16 @@ enum MovieEndpoint {
     }
     
     var apiKey : String { Keys.movieApiKey }
+    
     var url : String {
         switch self {
-        
         case .movies(let page, let upcoming):
             return "\(baseUrl)movie/\(upcoming ? "upcoming" : "now_playing")?api_key=\(apiKey)&page=\(page)"
         case .movie(let id):
             return "\(baseUrl)movie/\(id)?api_key=\(apiKey)"
         }
-       
-        
     }
-
+    
 }
 
 enum ImageEndpoint {
@@ -42,8 +40,6 @@ enum ImageEndpoint {
     
     var url : String {
         switch self {
-            
-        
         case .movieImage(path: let path):
             return baseUrl + path
         }

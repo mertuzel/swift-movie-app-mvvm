@@ -8,12 +8,12 @@
 import UIKit
 
 final class UpcomingMoviesTableViewCell: UITableViewCell {
-    @IBOutlet weak var collectionView: UICollectionView!
-    @IBOutlet weak var pageControl: UIPageControl!
+    @IBOutlet private weak var collectionView: UICollectionView!
+    @IBOutlet private weak var pageControl: UIPageControl!
     
-    var movies = [Result]()
-    var timer : Timer?
-    var currentIndex : Int = 0
+    private var movies = [Result]()
+    private var timer : Timer?
+    private var currentIndex : Int = 0
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -35,11 +35,11 @@ final class UpcomingMoviesTableViewCell: UITableViewCell {
         pageControl.numberOfPages = movies.count
     }
     
-    func startTimer(){
+    private func startTimer(){
         timer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(changeIndex), userInfo: nil, repeats: true)
     }
     
-    @objc func changeIndex(){
+    @objc private func changeIndex(){
         currentIndex += 1
         
         if currentIndex == movies.count  {
@@ -52,7 +52,7 @@ final class UpcomingMoviesTableViewCell: UITableViewCell {
         pageControl.currentPage = currentIndex
     }
     
-    func prepareCollectionView(){
+    private func prepareCollectionView(){
         collectionView.delegate = self
         collectionView.dataSource = self
     }

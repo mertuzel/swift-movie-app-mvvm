@@ -19,14 +19,17 @@ protocol DetailsViewModelDelegate{
     func setup()
 }
 
-class DetailsViewModel : DetailsViewModelProtocol{
+final class DetailsViewModel : DetailsViewModelProtocol{
     var delegate: DetailsViewModelDelegate?
     var movieId: Int?
     var movie : Result?
     
     func getMovie() {
+        guard let movieId = movieId else { return }
+        guard let url = URL(string:MovieEndpoint.movie(id: movieId).url) else { return }
+        
         delegate?.changeLoadingStatus(to: true)
-        WebService.shared.getMovie(url: URL(string: MovieEndpoint.movie(id: movieId!).url)!) { [ weak self] movie in
+        WebService.shared.getMovie(url: url) { [ weak self] movie in
             self?.movie = movie
             self?.delegate?.setup()
             self?.delegate?.changeLoadingStatus(to: false)
