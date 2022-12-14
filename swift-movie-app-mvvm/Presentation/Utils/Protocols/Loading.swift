@@ -1,11 +1,11 @@
 import UIKit
 
-protocol IncicatorProtocol where Self: UIViewController {
+protocol IndicatorProtocol where Self: UIViewController {
     func showIndicator()
     func hideIndicator()
 }
 
-extension IncicatorProtocol {
+extension IndicatorProtocol {
     func showIndicator() {
         LoadingView.shared.showIndicator()
     }
@@ -15,14 +15,15 @@ extension IncicatorProtocol {
     }
 }
 
-final private class LoadingView {
+final class LoadingView {
     static let shared = LoadingView()
     var spinner = UIActivityIndicatorView(style: .large)
     var view : UIView?
     
     init() {
         view = UIView()
-        guard let view = view else { return}
+        guard let view = view else { return }
+        
         view.backgroundColor = UIColor(white: 1, alpha: 1)
         
         spinner.translatesAutoresizingMaskIntoConstraints = false
@@ -36,17 +37,21 @@ final private class LoadingView {
         
     }
     
+    func getCreatedView() -> UIView?{
+        return view
+    }
+    
     func showIndicator(){
         guard let view = view else{  return }
         spinner.startAnimating()
         UIApplication.shared.currentUIWindow()?.addSubview(view)
     }
-    
-    
-    
+
     func hideIndicator(){
         guard let view = view else{  return }
         view.removeFromSuperview()
         spinner.stopAnimating()
     }
 }
+
+

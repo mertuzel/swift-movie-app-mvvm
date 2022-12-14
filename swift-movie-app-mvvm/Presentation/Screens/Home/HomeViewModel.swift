@@ -10,7 +10,8 @@ import UIKit
 
 protocol HomeViewModelProtocol{
     var delegate: HomeViewModelDelegate? { get set }
-    var movies: [Result] { get }
+    var currentMovies: [Result] { get }
+    var upcomingMovies : [Result] { get }
     func fetchDatas()
     func loadCurrentMovies(completion : @escaping () -> Void)
     func initialize()
@@ -18,15 +19,17 @@ protocol HomeViewModelProtocol{
 
 protocol HomeViewModelDelegate{
     func reloadTableView()
-    func changeLoadingStatus(to value : Bool)
+    func fetchMoreIndicator(to value : Bool)
     func prepareTableView()
     func setLoadingIndicator()
     func setGestureRecognizer()
+    func changeFullPageLoadingStatus(to value : Bool)
 }
 
 final class HomeViewModel : HomeViewModelProtocol{
     var delegate: HomeViewModelDelegate?
-    var movies: [Result] = []
+    var currentMovies: [Result] = []
+    var upcomingMovies: [Result] = []
     var isAllFetched: Bool = false
     var currentPage : Int = 1
     
@@ -42,35 +45,49 @@ final class HomeViewModel : HomeViewModelProtocol{
         
         dispatchGroup.enter()
         
-        loadCurrentMovies {
+        loadCurrentMovies() {
+            dispatchGroup.leave()
+        }
+        
+        dispatchGroup.enter()
+        
+        loadUpcomingMovies {
             dispatchGroup.leave()
         }
         
         dispatchGroup.notify(queue: .main){ [weak self] in
             self?.delegate?.reloadTableView()
-            self?.delegate?.changeLoadingStatus(to: false)
+            self?.delegate?.changeFullPageLoadingStatus(to: false)
         }
     }
     
     func loadCurrentMovies(completion: @escaping () -> Void) {
         if(!isAllFetched){
-            delegate?.changeLoadingStatus(to: true)
             let urlString = MovieEndpoint.movies(page: currentPage, upcoming: false).url
+            
             WebService.shared.getMovies(url: URL(string:urlString)!) { [weak self] movie in
                 if let movie = movie, let results = movie.results, !results.isEmpty {
                     self?.currentPage+=1
-                    self?.movies += results
+                    self?.currentMovies += results
                     completion()
                     return
                 }
                 
                 self?.isAllFetched = true
-                self?.delegate?.changeLoadingStatus(to: false)
-                completion()
-                
+                self?.delegate?.fetchMoreIndicator(to: false)
             }
         }
     }
     
-    
+    func loadUpcomingMovies(completion: @escaping () -> Void) {
+        let urlString = MovieEndpoint.movies(page: currentPage, upcoming: true).url
+        
+        WebService.shared.getMovies(url: URL(string:urlString)!) { [weak self] movie in
+            if let movie = movie, let results = movie.results, !results.isEmpty {
+                self?.upcomingMovies += results
+                completion()
+                return
+            }
+        }
+    }
 }

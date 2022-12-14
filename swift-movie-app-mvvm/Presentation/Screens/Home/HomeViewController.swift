@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class HomeViewController: UIViewController{
+class HomeViewController: UIViewController{
     @IBOutlet weak var tableView: UITableView!
     
     var viewModel : HomeViewModelProtocol? {
@@ -30,28 +30,26 @@ final class HomeViewController: UIViewController{
     }
 }
 
-extension HomeViewController : UITableViewDelegate, UITableViewDataSource {
+extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if (section == 0) {
-            return 0
+            return 1
         }
         else {
-            return viewModel?.movies.count ?? 0
+            return viewModel?.currentMovies.count ?? 0
         }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell",for: indexPath) as! MovieTableViewCell
-            
-            cell.initializeCell(imageUrl: ImageEndpoint.movieImage(path:  self.viewModel?.movies[0].posterPath ?? "").url, title: viewModel?.movies[0].title ?? "", description: viewModel?.movies[0].overview ?? "")
-            
+            let cell = tableView.dequeueReusableCell(withIdentifier: "UpcomingMoviesCell",for: indexPath) as! UpcomingMoviesTableViewCell
+            cell.initializeCell(movies:Array((viewModel?.upcomingMovies ?? []).prefix(5)))
             return cell
         }
         else{
             let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell",for: indexPath) as! MovieTableViewCell
             
-            cell.initializeCell(imageUrl: ImageEndpoint.movieImage(path:  self.viewModel?.movies[indexPath.row].posterPath ?? "").url, title: viewModel?.movies[indexPath.row].title ?? "", description: viewModel?.movies[indexPath.row].overview ?? "")
+            cell.initializeCell(imageUrl: ImageEndpoint.movieImage(path:  self.viewModel?.currentMovies[indexPath.row].posterPath ?? "").url, title: viewModel?.currentMovies[indexPath.row].title ?? "", description: viewModel?.currentMovies[indexPath.row].overview ?? "")
             
             return cell
         }
@@ -63,7 +61,7 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         guard let viewModel = viewModel else { return }
-        if viewModel.movies.count-1 == indexPath.row{
+        if viewModel.currentMovies.count-1 == indexPath.row{
             viewModel.loadCurrentMovies { [ weak self] in
                 self?.reloadTableView()
             }
@@ -72,7 +70,17 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource {
     
 }
 
-extension HomeViewController : HomeViewModelDelegate{
+extension HomeViewController : HomeViewModelDelegate, IndicatorProtocol{
+    func changeFullPageLoadingStatus(to value: Bool) {
+        if value {
+            showIndicator()
+        }
+        
+        else {
+            hideIndicator()
+        }
+    }
+    
     func prepareTableView() {
         tableView.delegate = self
         tableView.dataSource = self
@@ -94,10 +102,9 @@ extension HomeViewController : HomeViewModelDelegate{
         DispatchQueue.main.async { [weak self] in
             self?.tableView.reloadData()
         }
-        
     }
     
-    func changeLoadingStatus(to value : Bool) {
+    func fetchMoreIndicator(to value : Bool) {
         DispatchQueue.main.async {
             [weak self] in
             if (value){
