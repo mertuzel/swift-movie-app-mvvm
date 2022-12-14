@@ -1,0 +1,6 @@
+framework module Pods_swift_movie_app_mvvm {
+  umbrella header "Pods-swift-movie-app-mvvm-umbrella.h"
+
+  export *
+  module * { export * }
+}
