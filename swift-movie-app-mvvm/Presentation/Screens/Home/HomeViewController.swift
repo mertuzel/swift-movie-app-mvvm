@@ -24,6 +24,14 @@ final class HomeViewController: UIViewController{
         viewModel?.initialize()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        viewModel?.fetchFavoriteMovieIds {
+            
+        }
+        
+    }
+    
     @objc private func onNavBarTap(){
         tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
     }
@@ -75,6 +83,7 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
             if let id = viewModel?.currentMovies[indexPath.row].id{
                 vc.viewModel = DetailsViewModel()
                 vc.movieId = id
+                vc.isFavorite = viewModel?.isMovieFavorite(movieId: id)
                 navigationController?.pushViewController(vc, animated: true)
         }
 
@@ -83,6 +92,10 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
 }
 
 extension HomeViewController : HomeViewModelDelegate, IndicatorProtocol{
+    func getAppDelegate() -> AppDelegate {
+        UIApplication.shared.delegate as! AppDelegate
+    }
+    
     func showEmptyMessage() {
         DispatchQueue.main.async { [weak self] in
             self?.tableView.setEmptyMessage(message: AppTexts.emptyText)

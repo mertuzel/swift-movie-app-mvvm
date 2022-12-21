@@ -294,7 +294,13 @@
                             <constraint firstItem="IRP-Aj-hXk" firstAttribute="top" secondItem="dJb-cg-TNT" secondAttribute="top" id="lWn-aj-ldE"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="mFo-gn-seh"/>
+                    <navigationItem key="navigationItem" id="mFo-gn-seh">
+                        <barButtonItem key="rightBarButtonItem" title="Item" image="heart" catalog="system" id="meD-CH-ywQ">
+                            <connections>
+                                <action selector="onFavoriteButtonTap:" destination="Q7Q-QK-gfT" id="8gq-f2-fBn"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="imageView" destination="aUe-Wo-hrN" id="lX4-sX-I43"/>
                         <outlet property="movieDescription" destination="4ji-Gl-jgS" id="48F-Zn-ixu"/>
@@ -327,6 +333,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="heart" catalog="system" width="128" height="107"/>
         <image name="star.fill" catalog="system" width="128" height="116"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

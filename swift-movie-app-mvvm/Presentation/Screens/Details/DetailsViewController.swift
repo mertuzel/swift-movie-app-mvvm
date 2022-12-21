@@ -12,7 +12,7 @@ final class DetailsViewController: UIViewController {
     @IBOutlet private weak var movieTitle: UILabel!
     @IBOutlet private weak var movieRating: UILabel!
     @IBOutlet private weak var releaseDate: UILabel!
-    @IBOutlet weak var movieDescription: UILabel!
+    @IBOutlet private weak var movieDescription: UILabel!
     
     var viewModel: DetailsViewModelProtocol? {
         didSet { viewModel?.delegate = self }
@@ -25,14 +25,43 @@ final class DetailsViewController: UIViewController {
         }
     }
     
+    var isFavorite : Bool? {
+        didSet{
+            viewModel?.isFavorite = isFavorite
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.largeTitleDisplayMode = .never
+        changeFavoriteButtonUI()
     }
+    
+    @IBAction func onFavoriteButtonTap(_ sender: Any) {
+        viewModel?.toggleFavoriteState()
+    }
+    
+    func changeFavoriteButtonUI(){
+        if viewModel?.isFavorite ?? false {
+           navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart.fill"), style: .plain, target: self, action:#selector(onFavoriteButtonTap))
+            
+          
+        }
+        else{
+          navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart"), style: .plain, target: self, action:#selector(onFavoriteButtonTap))
+        }
+    }
+    
+    
     
 }
 
 extension DetailsViewController : DetailsViewModelDelegate,IndicatorProtocol {
+    func getAppDelegate() -> AppDelegate {
+        UIApplication.shared.delegate as! AppDelegate
+    }
+    
+    
     func changeLoadingStatus(to value: Bool) {
         DispatchQueue.main.async { [weak self] in
             if value {

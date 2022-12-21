@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 protocol HomeViewModelProtocol{
     var delegate: HomeViewModelDelegate? { get set }
@@ -15,6 +14,8 @@ protocol HomeViewModelProtocol{
     func fetchDatas()
     func loadCurrentMovies(completion : @escaping () -> Void)
     func initialize()
+    func isMovieFavorite(movieId : Int) -> Bool
+    func fetchFavoriteMovieIds(completion: @escaping () -> Void)
 }
 
 protocol HomeViewModelDelegate{
@@ -25,14 +26,19 @@ protocol HomeViewModelDelegate{
     func setGestureRecognizer()
     func changeFullPageLoadingStatus(to value : Bool)
     func showEmptyMessage()
+    func getAppDelegate() -> AppDelegate
 }
 
 final class HomeViewModel : HomeViewModelProtocol{
     var delegate: HomeViewModelDelegate?
     var currentMovies: [Result] = []
     var upcomingMovies: [Result] = []
+    
     var isAllFetched: Bool = false
     var currentPage : Int = 1
+    var favoriteMovies : [FavoriteMovie] = []
+    
+    lazy var appDelegate = delegate?.getAppDelegate()
     
     func initialize() {
         delegate?.prepareTableView()
@@ -53,6 +59,12 @@ final class HomeViewModel : HomeViewModelProtocol{
         dispatchGroup.enter()
         
         loadUpcomingMovies {
+            dispatchGroup.leave()
+        }
+        
+        dispatchGroup.enter()
+        
+        fetchFavoriteMovieIds {
             dispatchGroup.leave()
         }
         
@@ -97,4 +109,29 @@ final class HomeViewModel : HomeViewModelProtocol{
             }
         }
     }
+    
+    func fetchFavoriteMovieIds(completion: @escaping () -> Void){
+        guard let appDelegate else { return }
+        
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        
+      let favoriteOperations = FavoriteOperations(viewContext: managedContext)
+        
+        let list = favoriteOperations.fetchFavoriteList()
+        
+        favoriteMovies = list
+        
+        
+        completion()
+    }
+    
+    func isMovieFavorite(movieId: Int) -> Bool {
+      return  (favoriteMovies.firstIndex { favoriteMovie in
+            favoriteMovie.movieId as? Int == movieId
+      }) != nil
+    }
+    
+    
+    
 }
