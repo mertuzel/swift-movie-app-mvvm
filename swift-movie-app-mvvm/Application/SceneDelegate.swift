@@ -21,10 +21,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: winScene)
         
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        if let initialViewController = storyboard.instantiateViewController(identifier: "HomeViewController") as? HomeViewController{
-            initialViewController.viewModel = HomeViewModel()
-            let navController = UINavigationController(rootViewController: initialViewController)
-            window?.rootViewController = navController
+        if let initialViewController = storyboard.instantiateViewController(identifier: Constants.tabBarIdentier) as? UITabBarController{
+            window?.rootViewController = initialViewController
+            
+            for viewController in initialViewController.viewControllers ?? [] {
+                if let navController = viewController as? UINavigationController {
+                    if let homeVC = navController.viewControllers.first as? HomeViewController {
+                        homeVC.viewModel = HomeViewModel()
+                    }
+                }
+                
+                if let navController = viewController as? UINavigationController {
+                    if let favoritesVc = navController.viewControllers.first as? FavoritesViewController {
+                        favoritesVc.viewModel = FavoritesViewModel()
+                    }
+                }
+                
+               
+            }
+            
             let indicatorView = LoadingView.shared.getCreatedView()
             window?.makeKeyAndVisible()
             guard let indicatorView = indicatorView else { return }

@@ -24,7 +24,6 @@ struct WebService{
                     catch{
                         completion(nil)
                     }
-                    
                 }
             }.resume()
     }
@@ -43,7 +42,6 @@ struct WebService{
                 catch{
                     completion(nil)
                 }
-                
             }
         }.resume()
     }

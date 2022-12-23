@@ -46,7 +46,7 @@ final class LoadingView {
         spinner.startAnimating()
         UIApplication.shared.currentUIWindow()?.addSubview(view)
     }
-
+    
     func hideIndicator(){
         guard let view = view else{  return }
         view.removeFromSuperview()

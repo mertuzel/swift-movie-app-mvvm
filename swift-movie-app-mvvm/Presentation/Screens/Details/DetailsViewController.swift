@@ -21,7 +21,6 @@ final class DetailsViewController: UIViewController {
     var movieId : Int? {
         didSet{
             viewModel?.movieId = movieId
-            viewModel?.getMovie()
         }
     }
     
@@ -33,8 +32,10 @@ final class DetailsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         navigationItem.largeTitleDisplayMode = .never
         changeFavoriteButtonUI()
+        viewModel?.getMovie()
     }
     
     @IBAction func onFavoriteButtonTap(_ sender: Any) {
@@ -43,17 +44,13 @@ final class DetailsViewController: UIViewController {
     
     func changeFavoriteButtonUI(){
         if viewModel?.isFavorite ?? false {
-           navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart.fill"), style: .plain, target: self, action:#selector(onFavoriteButtonTap))
-            
-          
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart.fill"), style: .plain, target: self, action:#selector(onFavoriteButtonTap))
         }
+        
         else{
-          navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart"), style: .plain, target: self, action:#selector(onFavoriteButtonTap))
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart"), style: .plain, target: self, action:#selector(onFavoriteButtonTap))
         }
     }
-    
-    
-    
 }
 
 extension DetailsViewController : DetailsViewModelDelegate,IndicatorProtocol {
@@ -61,12 +58,12 @@ extension DetailsViewController : DetailsViewModelDelegate,IndicatorProtocol {
         UIApplication.shared.delegate as! AppDelegate
     }
     
-    
     func changeLoadingStatus(to value: Bool) {
         DispatchQueue.main.async { [weak self] in
             if value {
                 self?.showIndicator()
             }
+            
             else{
                 self?.hideIndicator()
             }
@@ -85,5 +82,4 @@ extension DetailsViewController : DetailsViewModelDelegate,IndicatorProtocol {
             self?.movieDescription.text = movieDescription
         }
     }
-    
 }

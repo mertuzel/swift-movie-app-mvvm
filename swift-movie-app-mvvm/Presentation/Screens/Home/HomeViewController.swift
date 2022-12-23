@@ -20,16 +20,15 @@ final class HomeViewController: UIViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         navigationController?.navigationBar.prefersLargeTitles = true
         viewModel?.initialize()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        viewModel?.fetchFavoriteMovieIds {
-            
-        }
         
+        viewModel?.fetchFavoriteMovies { }
     }
     
     @objc private func onNavBarTap(){
@@ -42,6 +41,7 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
         if (section == 0) {
             return 1
         }
+        
         else {
             return viewModel?.currentMovies.count ?? 0
         }
@@ -49,15 +49,14 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "UpcomingMoviesCell",for: indexPath) as! UpcomingMoviesTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: Constants.upcomingMoviesCellIdentifier,for: indexPath) as! UpcomingMoviesTableViewCell
             cell.initializeCell(movies:Array((viewModel?.upcomingMovies ?? []).prefix(5)))
             return cell
         }
+        
         else{
-            let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell",for: indexPath) as! MovieTableViewCell
-            
+            let cell = tableView.dequeueReusableCell(withIdentifier: Constants.currentMoviesCelIdentifier,for: indexPath) as! MovieTableViewCell
             cell.initializeCell(imageUrl: ImageEndpoint.movieImage(path:  self.viewModel?.currentMovies[indexPath.row].posterPath ?? "").url, title: viewModel?.currentMovies[indexPath.row].title ?? "", description: viewModel?.currentMovies[indexPath.row].overview ?? "")
-            
             return cell
         }
     }
@@ -78,17 +77,15 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let vc = storyboard?.instantiateViewController(withIdentifier: "DetailsViewController") as? DetailsViewController else { return }
+        guard let vc = storyboard?.instantiateViewController(withIdentifier: Constants.detailsVcIdentifier) as? DetailsViewController else { return }
         
-            if let id = viewModel?.currentMovies[indexPath.row].id{
-                vc.viewModel = DetailsViewModel()
-                vc.movieId = id
-                vc.isFavorite = viewModel?.isMovieFavorite(movieId: id)
-                navigationController?.pushViewController(vc, animated: true)
+        if let id = viewModel?.currentMovies[indexPath.row].id{
+            vc.viewModel = DetailsViewModel()
+            vc.movieId = id
+            vc.isFavorite = viewModel?.isMovieFavorite(movieId: id)
+            navigationController?.pushViewController(vc, animated: true)
         }
-
     }
-    
 }
 
 extension HomeViewController : HomeViewModelDelegate, IndicatorProtocol{
@@ -112,7 +109,6 @@ extension HomeViewController : HomeViewModelDelegate, IndicatorProtocol{
                 self?.hideIndicator()
             }
         }
-       
     }
     
     func prepareTableView() {
@@ -143,13 +139,14 @@ extension HomeViewController : HomeViewModelDelegate, IndicatorProtocol{
             [weak self] in
             if (value){
                 self?.tableView.tableFooterView = self?.loadingIndicator
-            } else{
+            }
+            
+            else{
                 self?.tableView.tableFooterView = nil
             }
             
             self?.tableView.tableFooterView?.isHidden = !value
         }
-        
     }
 }
 

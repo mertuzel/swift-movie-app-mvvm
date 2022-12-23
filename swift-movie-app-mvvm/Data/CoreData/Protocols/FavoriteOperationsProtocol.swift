@@ -9,7 +9,8 @@ import Foundation
 
 
 protocol FavoriteOperationsProtocol {
-    func createFavoriteGame(movie : Result) -> FavoriteMovie
+    func createFavoriteGame(movie : Result) -> Void
     func fetchFavoriteList() -> [FavoriteMovie]
     func toggleFavorite(isAdd : Bool,movie : Result)
+    func clearFavoriteList() -> Void
 }

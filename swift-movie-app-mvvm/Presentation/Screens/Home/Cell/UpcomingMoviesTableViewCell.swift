@@ -17,11 +17,8 @@ final class UpcomingMoviesTableViewCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        
         prepareCollectionView()
-    }
-    
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
     }
     
     func initializeCell(movies: [Result]){
@@ -46,9 +43,9 @@ final class UpcomingMoviesTableViewCell: UITableViewCell {
             currentIndex = 0
         }
         
-        self.collectionView.isPagingEnabled = false
+        collectionView.isPagingEnabled = false
         collectionView.scrollToItem(at: IndexPath(item: currentIndex, section: 0), at: .centeredHorizontally, animated: true)
-        self.collectionView.isPagingEnabled = true
+        collectionView.isPagingEnabled = true
         pageControl.currentPage = currentIndex
     }
     
@@ -64,10 +61,8 @@ extension UpcomingMoviesTableViewCell : UICollectionViewDelegate, UICollectionVi
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCell", for: indexPath) as! UpcomingMoviesCollectionViewCell
-        
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.upcomingMoviesCollectionCellIndentifier, for: indexPath) as! UpcomingMoviesCollectionViewCell
         cell.initializeCell(imageUrl:ImageEndpoint.movieImage(path:  movies[indexPath.item].backdropPath ?? "").url)
-        
         return cell
     }
 }

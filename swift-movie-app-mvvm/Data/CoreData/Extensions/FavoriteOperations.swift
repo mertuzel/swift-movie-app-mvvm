@@ -16,23 +16,20 @@ final class FavoriteOperations : FavoriteOperationsProtocol {
         self.viewContext = viewContext
     }
     
-    func createFavoriteGame(movie: Result) -> FavoriteMovie {
-        let entity = NSEntityDescription.entity(forEntityName: "FavoriteMovie", in: viewContext)
+    func createFavoriteGame(movie: Result) -> Void {
+        let entity = NSEntityDescription.entity(forEntityName: Constants.favoriteMovieDbEntityName, in: viewContext)
         let favoriteMovie = FavoriteMovie(entity: entity!, insertInto: viewContext)
         
         favoriteMovie.movieId = movie.id as NSNumber?
-        favoriteMovie.imageUrl = movie.backdropPath ?? ""
+        favoriteMovie.imageUrl = movie.posterPath ?? ""
         favoriteMovie.movieTitle = movie.title ?? ""
         favoriteMovie.movieDescription = movie.overview ?? ""
         favoriteMovie.publishDate = movie.releaseDate
         favoriteMovie.rating = movie.voteAverage as NSNumber?
-
-        return favoriteMovie
     }
     
     func fetchFavoriteList() -> [FavoriteMovie] {
-        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "FavoriteMovie")
-        
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: Constants.favoriteMovieDbEntityName)
         var favoriteMovies: [FavoriteMovie] = []
         
         do {
@@ -44,40 +41,59 @@ final class FavoriteOperations : FavoriteOperationsProtocol {
             }
             
             return favoriteMovies
-            
-            
-          } catch let error as NSError {
+        } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
-              return []
-          }
-        
-        
+            return []
+        }
     }
     
     func toggleFavorite(isAdd : Bool, movie: Result) {
-         
-
         if isAdd {
             createFavoriteGame(movie: movie)
             try? viewContext.save()
         }
+        
         else{
-            let request = NSFetchRequest<NSFetchRequestResult>(entityName: "FavoriteMovie")
+            let request = NSFetchRequest<NSFetchRequestResult>(entityName: Constants.favoriteMovieDbEntityName)
             request.predicate = NSPredicate.init(format: "movieId==\(String(describing: movie.id ?? 0))")
             
             do {
                 let results: NSArray = try viewContext.fetch(request) as NSArray
+                
                 for object in results {
                     viewContext.delete(object as! NSManagedObject)
                 }
+                
                 try viewContext.save()
-
             } catch {
                 print(error)
             }
         }
     }
     
-
-    
+    func clearFavoriteList() {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = FavoriteMovie.fetchRequest()
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        deleteRequest.resultType = .resultTypeObjectIDs
+        
+        do {
+            let result = try viewContext.execute(
+                deleteRequest
+            )
+            
+            guard
+                let deleteResult = result as? NSBatchDeleteResult,
+                let ids = deleteResult.result as? [NSManagedObjectID]
+            else { return }
+            
+            let changes = [NSDeletedObjectsKey: ids]
+            
+            NSManagedObjectContext.mergeChanges(
+                fromRemoteContextSave: changes,
+                into: [viewContext]
+            )
+        } catch {
+            print(error as Any)
+        }
+    }
 }

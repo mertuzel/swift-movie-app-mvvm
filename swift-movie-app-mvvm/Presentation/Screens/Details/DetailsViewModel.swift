@@ -49,11 +49,8 @@ final class DetailsViewModel : DetailsViewModelProtocol{
         guard let appDelegate else { return }
         guard let movie = movie else { return }
         
-        let managedContext =
-            appDelegate.persistentContainer.viewContext
-        
-      let favoriteOperations = FavoriteOperations(viewContext: managedContext)
-        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        let favoriteOperations = FavoriteOperations(viewContext: managedContext)
         favoriteOperations.toggleFavorite(isAdd: !isFavorite, movie: movie)
         self.isFavorite = !isFavorite
         delegate?.changeFavoriteButtonUI()

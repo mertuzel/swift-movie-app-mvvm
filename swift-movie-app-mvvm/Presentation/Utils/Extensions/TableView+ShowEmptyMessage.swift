@@ -17,11 +17,11 @@ extension UITableView {
         label.textAlignment = .center
         label.font = UIFont.preferredFont(forTextStyle: .title2)
         label.sizeToFit()
-
+        
         self.backgroundView = label
         self.separatorStyle = .none
     }
-
+    
     func restore() {
         self.backgroundView = nil
         self.separatorStyle = .singleLine

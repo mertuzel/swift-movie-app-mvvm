@@ -15,7 +15,7 @@ protocol HomeViewModelProtocol{
     func loadCurrentMovies(completion : @escaping () -> Void)
     func initialize()
     func isMovieFavorite(movieId : Int) -> Bool
-    func fetchFavoriteMovieIds(completion: @escaping () -> Void)
+    func fetchFavoriteMovies(completion: @escaping () -> Void)
 }
 
 protocol HomeViewModelDelegate{
@@ -64,7 +64,7 @@ final class HomeViewModel : HomeViewModelProtocol{
         
         dispatchGroup.enter()
         
-        fetchFavoriteMovieIds {
+        fetchFavoriteMovies {
             dispatchGroup.leave()
         }
         
@@ -110,28 +110,20 @@ final class HomeViewModel : HomeViewModelProtocol{
         }
     }
     
-    func fetchFavoriteMovieIds(completion: @escaping () -> Void){
+    func fetchFavoriteMovies(completion: @escaping () -> Void){
         guard let appDelegate else { return }
         
         let managedContext =
-            appDelegate.persistentContainer.viewContext
-        
-      let favoriteOperations = FavoriteOperations(viewContext: managedContext)
-        
+        appDelegate.persistentContainer.viewContext
+        let favoriteOperations = FavoriteOperations(viewContext: managedContext)
         let list = favoriteOperations.fetchFavoriteList()
-        
         favoriteMovies = list
-        
-        
         completion()
     }
     
     func isMovieFavorite(movieId: Int) -> Bool {
-      return  (favoriteMovies.firstIndex { favoriteMovie in
+        return  (favoriteMovies.firstIndex { favoriteMovie in
             favoriteMovie.movieId as? Int == movieId
-      }) != nil
+        }) != nil
     }
-    
-    
-    
 }
