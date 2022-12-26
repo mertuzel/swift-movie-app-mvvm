@@ -95,7 +95,7 @@ extension HomeViewController : HomeViewModelDelegate, IndicatorProtocol{
     
     func showEmptyMessage() {
         DispatchQueue.main.async { [weak self] in
-            self?.tableView.setEmptyMessage(message: AppTexts.emptyText)
+            self?.tableView.setEmptyMessage(message: AppTexts.emptyMoviesText)
         }
     }
     

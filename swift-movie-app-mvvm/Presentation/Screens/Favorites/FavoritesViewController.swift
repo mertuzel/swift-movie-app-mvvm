@@ -40,6 +40,18 @@ extension FavoritesViewController : FavoritesViewModelDelegate, Alertable {
         UIApplication.shared.delegate as! AppDelegate
     }
     
+    func showEmptyMessage() {
+        DispatchQueue.main.async { [weak self] in
+            self?.collectionView.setEmptyMessage(message: AppTexts.emptyFavoritesText)
+        }
+    }
+    
+    func restore() {
+        DispatchQueue.main.async { [weak self] in
+            self?.collectionView.restore()
+        }
+    }
+    
     func reloadCollectionView() {
         DispatchQueue.main.async { [weak self] in
             self?.collectionView.reloadData()

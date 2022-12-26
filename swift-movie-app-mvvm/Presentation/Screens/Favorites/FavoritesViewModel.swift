@@ -21,6 +21,8 @@ protocol FavoritesViewModelDelegate {
     func reloadCollectionView()
     func getAppDelegate() -> AppDelegate
     func changeClearButtonVisibility(to value : Bool)
+    func showEmptyMessage()
+    func restore()
 }
 
 final class FavoritesViewModel : FavoritesViewModelProtocol {
@@ -44,6 +46,14 @@ final class FavoritesViewModel : FavoritesViewModelProtocol {
         let favoriteOperations = FavoriteOperations(viewContext: managedContext)
         let list = favoriteOperations.fetchFavoriteList()
         favoriteMovies = list
+        
+        if favoriteMovies.isEmpty {
+            delegate?.showEmptyMessage()
+        }
+        else{
+            delegate?.restore()
+        }
+        
         delegate?.reloadCollectionView()
     }
     
@@ -53,5 +63,6 @@ final class FavoritesViewModel : FavoritesViewModelProtocol {
         let managedContext = appDelegate.persistentContainer.viewContext
         let favoriteOperations = FavoriteOperations(viewContext: managedContext)
         favoriteOperations.clearFavoriteList()
+        delegate?.showEmptyMessage()
     }
 }

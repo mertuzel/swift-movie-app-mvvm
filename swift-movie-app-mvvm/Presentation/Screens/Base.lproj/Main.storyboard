@@ -231,7 +231,7 @@
         <!--Details View Controller-->
         <scene sceneID="nPD-dO-lQ2">
             <objects>
-                <viewController storyboardIdentifier="DetailsViewController" id="Q7Q-QK-gfT" customClass="DetailsViewController" customModule="swift_movie_app_mvvm" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="DetailsViewController" hidesBottomBarWhenPushed="YES" id="Q7Q-QK-gfT" customClass="DetailsViewController" customModule="swift_movie_app_mvvm" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="RL1-NE-1dg">
                         <rect key="frame" x="0.0" y="0.0" width="428" height="926"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

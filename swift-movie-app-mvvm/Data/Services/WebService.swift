@@ -21,6 +21,7 @@ struct WebService{
                         let movieList = try JSONDecoder().decode(Movie.self, from: data)
                         completion(movieList)
                     }
+                    
                     catch{
                         completion(nil)
                     }
