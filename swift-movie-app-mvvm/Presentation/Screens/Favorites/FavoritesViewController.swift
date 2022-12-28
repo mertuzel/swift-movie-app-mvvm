@@ -40,9 +40,9 @@ extension FavoritesViewController : FavoritesViewModelDelegate, Alertable {
         UIApplication.shared.delegate as! AppDelegate
     }
     
-    func showEmptyMessage() {
+    func showBackgroundMessage(_ message : String) {
         DispatchQueue.main.async { [weak self] in
-            self?.collectionView.setEmptyMessage(message: AppTexts.emptyFavoritesText)
+            self?.collectionView.setBackgroundMessage(message: message)
         }
     }
     
@@ -94,7 +94,6 @@ extension FavoritesViewController : FavoritesViewModelDelegate, Alertable {
     
 }
 
-
 extension FavoritesViewController : UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return viewModel?.favoriteMovies.count ?? 0
@@ -102,7 +101,7 @@ extension FavoritesViewController : UICollectionViewDelegate, UICollectionViewDa
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.favoriteCellIdentifier, for: indexPath) as! FavoriteCollectionViewCell
-        cell.initializeCell(imageUrl:ImageEndpoint.movieImage(path: viewModel?.favoriteMovies[indexPath.item].imageUrl ?? "").url)
+        cell.initializeCell(imageUrl:MovieEndpoint.image(path: viewModel?.favoriteMovies[indexPath.item].imageUrl ?? "").url)
         return cell
     }
     
@@ -113,6 +112,7 @@ extension FavoritesViewController : UICollectionViewDelegate, UICollectionViewDa
             vc.viewModel = DetailsViewModel()
             vc.movieId = id as? Int
             vc.isFavorite = true
+            vc.isFavoriteError = false
             navigationController?.pushViewController(vc, animated: true)
         }
     }

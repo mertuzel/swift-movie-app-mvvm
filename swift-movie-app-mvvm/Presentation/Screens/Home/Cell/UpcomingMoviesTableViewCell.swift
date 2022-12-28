@@ -11,7 +11,7 @@ final class UpcomingMoviesTableViewCell: UITableViewCell {
     @IBOutlet private weak var collectionView: UICollectionView!
     @IBOutlet private weak var pageControl: UIPageControl!
     
-    private var movies = [Result]()
+    private var movies = [Movie]()
     private var timer : Timer?
     private var currentIndex : Int = 0
     
@@ -21,7 +21,7 @@ final class UpcomingMoviesTableViewCell: UITableViewCell {
         prepareCollectionView()
     }
     
-    func initializeCell(movies: [Result]){
+    func initializeCell(movies: [Movie]){
         self.movies = movies
         collectionView.reloadData()
         
@@ -62,7 +62,7 @@ extension UpcomingMoviesTableViewCell : UICollectionViewDelegate, UICollectionVi
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.upcomingMoviesCollectionCellIndentifier, for: indexPath) as! UpcomingMoviesCollectionViewCell
-        cell.initializeCell(imageUrl:ImageEndpoint.movieImage(path:  movies[indexPath.item].backdropPath ?? "").url)
+        cell.initializeCell(imageUrl:MovieEndpoint.image(path:  movies[indexPath.item].backdropPath ?? "").url)
         return cell
     }
 }

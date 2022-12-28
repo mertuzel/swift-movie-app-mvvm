@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 extension UICollectionView {
-    func setEmptyMessage(message: String) {
+    func setBackgroundMessage(message: String) {
         let label = UILabel(frame: CGRect(x: 0, y: 0, width: self.bounds.size.width, height: self.bounds.size.height))
         label.text = message
         label.textColor = .gray

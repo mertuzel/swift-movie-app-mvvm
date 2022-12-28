@@ -9,8 +9,9 @@ import Foundation
 
 protocol HomeViewModelProtocol{
     var delegate: HomeViewModelDelegate? { get set }
-    var currentMovies: [Result] { get }
-    var upcomingMovies : [Result] { get }
+    var currentMovies: [Movie] { get }
+    var upcomingMovies : [Movie] { get }
+    var isFavoriteError : Bool { get }
     func fetchDatas()
     func loadCurrentMovies(completion : @escaping () -> Void)
     func initialize()
@@ -25,14 +26,15 @@ protocol HomeViewModelDelegate{
     func setLoadingIndicator()
     func setGestureRecognizer()
     func changeFullPageLoadingStatus(to value : Bool)
-    func showEmptyMessage()
+    func showBackgroundMessage(_ message : String)
     func getAppDelegate() -> AppDelegate
 }
 
 final class HomeViewModel : HomeViewModelProtocol{
     var delegate: HomeViewModelDelegate?
-    var currentMovies: [Result] = []
-    var upcomingMovies: [Result] = []
+    var currentMovies: [Movie] = []
+    var upcomingMovies: [Movie] = []
+    var isFavoriteError: Bool = false
     
     var isAllFetched: Bool = false
     var currentPage : Int = 1
@@ -78,22 +80,23 @@ final class HomeViewModel : HomeViewModelProtocol{
         if(!isAllFetched){
             guard let url = URL(string:MovieEndpoint.movies(page: currentPage, upcoming: false).url) else { return }
             
-            WebService.shared.getMovies(url: url) { [weak self] movie in
-                if let movie = movie, let results = movie.results, !results.isEmpty {
+            WebService.shared.getMovies(url: url) { [weak self] result in
+                switch result {
+                case .success(let movies):
+                    self?.currentMovies += movies
                     self?.currentPage+=1
-                    self?.currentMovies += results
-                    completion()
-                    return
+                    
+                    if (movies.isEmpty){
+                        self?.isAllFetched = true
+                        self?.delegate?.fetchMoreIndicator(to: false)
+                        self?.delegate?.showBackgroundMessage(AppTexts.emptyMoviesText)
+                    }
+                    
+                case .failure(_):
+                    self?.delegate?.showBackgroundMessage(AppTexts.somethingWentWrong) 
                 }
                 
-                self?.isAllFetched = true
-                self?.delegate?.fetchMoreIndicator(to: false)
-                
-                if ((self?.currentMovies.isEmpty) != nil) {
-                    self?.delegate?.showEmptyMessage()
-                }
-                
-                self?.delegate?.changeFullPageLoadingStatus(to: false)
+                completion()
             }
         }
     }
@@ -101,12 +104,17 @@ final class HomeViewModel : HomeViewModelProtocol{
     func loadUpcomingMovies(completion: @escaping () -> Void) {
         guard let url = URL(string:MovieEndpoint.movies(page: currentPage, upcoming: true).url) else { return }
         
-        WebService.shared.getMovies(url: url) { [weak self] movie in
-            if let movie = movie, let results = movie.results, !results.isEmpty {
-                self?.upcomingMovies += results
-                completion()
-                return
+        WebService.shared.getMovies(url: url) { [weak self] result in
+            switch result {
+            case .success(let movies):
+                self?.upcomingMovies = movies
+                
+            case .failure(_):
+                self?.upcomingMovies = []
             }
+            
+            completion()
+            
         }
     }
     
@@ -116,8 +124,15 @@ final class HomeViewModel : HomeViewModelProtocol{
         let managedContext =
         appDelegate.persistentContainer.viewContext
         let favoriteOperations = FavoriteOperations(viewContext: managedContext)
-        let list = favoriteOperations.fetchFavoriteList()
-        favoriteMovies = list
+        let result = favoriteOperations.fetchFavoriteList()
+        switch result {
+        case .success(let movieList):
+            favoriteMovies = movieList
+            
+        case .failure(_):
+            isFavoriteError = true
+        }
+        
         completion()
     }
     

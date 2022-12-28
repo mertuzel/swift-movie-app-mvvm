@@ -6,14 +6,15 @@
 import Foundation
 
 // MARK: - Movie
-struct Movie: Codable {
+struct MoviesWithInfos: Codable {
     let dates: Dates?
     let page: Int?
-    let results: [Result]?
+    let movies: [Movie]?
     let totalPages, totalResults: Int?
     
     enum CodingKeys: String, CodingKey {
-        case dates, page, results
+        case dates, page
+        case movies = "results"
         case totalPages = "total_pages"
         case totalResults = "total_results"
     }
@@ -25,7 +26,7 @@ struct Dates: Codable {
 }
 
 // MARK: - Result
-struct Result: Codable {
+struct Movie: Codable {
     let adult: Bool?
     let backdropPath: String?
     let genreIDS: [Int]?

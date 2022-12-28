@@ -16,7 +16,7 @@ final class FavoriteOperations : FavoriteOperationsProtocol {
         self.viewContext = viewContext
     }
     
-    func createFavoriteGame(movie: Result) -> Void {
+    func createFavoriteGame(movie: Movie) -> Void {
         let entity = NSEntityDescription.entity(forEntityName: Constants.favoriteMovieDbEntityName, in: viewContext)
         let favoriteMovie = FavoriteMovie(entity: entity!, insertInto: viewContext)
         
@@ -28,7 +28,7 @@ final class FavoriteOperations : FavoriteOperationsProtocol {
         favoriteMovie.rating = movie.voteAverage as NSNumber?
     }
     
-    func fetchFavoriteList() -> [FavoriteMovie] {
+    func fetchFavoriteList() -> Result<[FavoriteMovie],Error> {
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: Constants.favoriteMovieDbEntityName)
         var favoriteMovies: [FavoriteMovie] = []
         
@@ -40,14 +40,14 @@ final class FavoriteOperations : FavoriteOperationsProtocol {
                 favoriteMovies.append(favoriteMovie)
             }
             
-            return favoriteMovies
+            return .success(favoriteMovies)
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
-            return []
+            return .failure(error)
         }
     }
     
-    func toggleFavorite(isAdd : Bool, movie: Result) {
+    func toggleFavorite(isAdd : Bool, movie: Movie) {
         if isAdd {
             createFavoriteGame(movie: movie)
             try? viewContext.save()

@@ -354,14 +354,36 @@
                                 <viewLayoutGuide key="contentLayoutGuide" id="Qlh-bL-gj4"/>
                                 <viewLayoutGuide key="frameLayoutGuide" id="vJi-m2-Pms"/>
                             </scrollView>
+                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bPY-yz-5i1">
+                                <rect key="frame" x="0.0" y="91" width="428" height="835"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sorry, something went wrong." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="omc-Un-9Hk">
+                                        <rect key="frame" x="20" y="387.33333333333331" width="388" height="26.333333333333314"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                        <color key="textColor" systemColor="systemGrayColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <viewLayoutGuide key="safeArea" id="ZiI-iE-npN"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstItem="ZiI-iE-npN" firstAttribute="trailing" secondItem="omc-Un-9Hk" secondAttribute="trailing" constant="20" id="8q7-Aw-W5s"/>
+                                    <constraint firstItem="omc-Un-9Hk" firstAttribute="centerY" secondItem="ZiI-iE-npN" secondAttribute="centerY" id="GoZ-ku-E15"/>
+                                    <constraint firstItem="omc-Un-9Hk" firstAttribute="leading" secondItem="ZiI-iE-npN" secondAttribute="leading" constant="20" id="YJO-Wz-l1k"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="dJb-cg-TNT"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="bPY-yz-5i1" firstAttribute="leading" secondItem="dJb-cg-TNT" secondAttribute="leading" id="FO3-12-wRV"/>
                             <constraint firstItem="IRP-Aj-hXk" firstAttribute="trailing" secondItem="dJb-cg-TNT" secondAttribute="trailing" id="J0H-MU-2Pz"/>
                             <constraint firstAttribute="bottom" secondItem="IRP-Aj-hXk" secondAttribute="bottom" id="JNH-bS-piR"/>
+                            <constraint firstItem="bPY-yz-5i1" firstAttribute="trailing" secondItem="dJb-cg-TNT" secondAttribute="trailing" id="ejj-pe-9gw"/>
                             <constraint firstItem="IRP-Aj-hXk" firstAttribute="leading" secondItem="dJb-cg-TNT" secondAttribute="leading" id="hkO-pO-jbp"/>
                             <constraint firstItem="IRP-Aj-hXk" firstAttribute="top" secondItem="dJb-cg-TNT" secondAttribute="top" id="lWn-aj-ldE"/>
+                            <constraint firstItem="bPY-yz-5i1" firstAttribute="top" secondItem="dJb-cg-TNT" secondAttribute="top" id="ngM-pk-LFP"/>
+                            <constraint firstAttribute="bottom" secondItem="bPY-yz-5i1" secondAttribute="bottom" id="vH8-DF-iXe"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="mFo-gn-seh">
@@ -372,6 +394,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="errorView" destination="bPY-yz-5i1" id="7lk-aT-sxi"/>
                         <outlet property="imageView" destination="aUe-Wo-hrN" id="lX4-sX-I43"/>
                         <outlet property="movieDescription" destination="4ji-Gl-jgS" id="48F-Zn-ixu"/>
                         <outlet property="movieRating" destination="YIB-wX-mws" id="563-bH-vhh"/>
@@ -381,7 +404,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="b4N-Tz-Ci6" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2215" y="748"/>
+            <point key="canvasLocation" x="2214.9532710280373" y="747.73218142548603"/>
         </scene>
         <!--Home-->
         <scene sceneID="KPf-x0-ZV0">
@@ -451,6 +474,9 @@
         <image name="star.fill" catalog="system" width="128" height="116"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemGrayColor">
+            <color red="0.55686274509803924" green="0.55686274509803924" blue="0.57647058823529407" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemYellowColor">
             <color red="1" green="0.80000000000000004" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

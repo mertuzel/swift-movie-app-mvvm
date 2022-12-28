@@ -23,6 +23,7 @@ final class HomeViewController: UIViewController{
         
         navigationController?.navigationBar.prefersLargeTitles = true
         viewModel?.initialize()
+        tableView.accessibilityIdentifier = "myTableView"
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -56,7 +57,11 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
         
         else{
             let cell = tableView.dequeueReusableCell(withIdentifier: Constants.currentMoviesCelIdentifier,for: indexPath) as! MovieTableViewCell
-            cell.initializeCell(imageUrl: ImageEndpoint.movieImage(path:  self.viewModel?.currentMovies[indexPath.row].posterPath ?? "").url, title: viewModel?.currentMovies[indexPath.row].title ?? "", description: viewModel?.currentMovies[indexPath.row].overview ?? "")
+            cell.initializeCell(imageUrl: MovieEndpoint.image(path:  self.viewModel?.currentMovies[indexPath.row].posterPath ?? "").url, title: viewModel?.currentMovies[indexPath.row].title ?? "", description: viewModel?.currentMovies[indexPath.row].overview ?? "")
+            
+            cell.isAccessibilityElement = true
+            cell.accessibilityIdentifier = "cell_\(indexPath.row)"
+            
             return cell
         }
     }
@@ -83,6 +88,7 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
             vc.viewModel = DetailsViewModel()
             vc.movieId = id
             vc.isFavorite = viewModel?.isMovieFavorite(movieId: id)
+            vc.isFavoriteError = viewModel?.isFavoriteError
             navigationController?.pushViewController(vc, animated: true)
         }
     }
@@ -93,9 +99,9 @@ extension HomeViewController : HomeViewModelDelegate, IndicatorProtocol{
         UIApplication.shared.delegate as! AppDelegate
     }
     
-    func showEmptyMessage() {
+    func showBackgroundMessage(_ message : String) {
         DispatchQueue.main.async { [weak self] in
-            self?.tableView.setEmptyMessage(message: AppTexts.emptyMoviesText)
+            self?.tableView.setBackgroundMessage(message: message)
         }
     }
     

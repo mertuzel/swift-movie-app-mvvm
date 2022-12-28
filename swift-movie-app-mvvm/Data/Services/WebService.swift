@@ -10,38 +10,38 @@ import Foundation
 struct WebService{
     static let shared = WebService()
     
-    func getMovies(url : URL, completion : @escaping (Movie?)->() ){
-            URLSession.shared.dataTask(with: url) { data, response, error in
-                if let error = error{
-                    print(error.localizedDescription)
-                    completion(nil)
-                }
-                else if let data = data {
-                    do{
-                        let movieList = try JSONDecoder().decode(Movie.self, from: data)
-                        completion(movieList)
-                    }
-                    
-                    catch{
-                        completion(nil)
-                    }
-                }
-            }.resume()
-    }
-    
-    func getMovie(url : URL, completion : @escaping (Result?)->() ){
+    func getMovies(url : URL, completion : @escaping (Result<[Movie],Error>)->() ){
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error{
                 print(error.localizedDescription)
-                completion(nil)
+                completion(.failure(error))
             }
             else if let data = data {
                 do{
-                    let movie = try JSONDecoder().decode(Result.self, from: data)
-                    completion(movie)
+                    let movieList = try JSONDecoder().decode(MoviesWithInfos.self, from: data)
+                    completion(.success(movieList.movies ?? []))
+                }
+                
+                catch{
+                    completion(.failure(error))
+                }
+            }
+        }.resume()
+    }
+    
+    func getMovie(url : URL, completion : @escaping (Result<Movie?,Error>)->() ){
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error{
+                print(error.localizedDescription)
+                completion(.failure(error))
+            }
+            else if let data = data {
+                do{
+                    let movie = try JSONDecoder().decode(Movie.self, from: data)
+                    completion(.success(movie))
                 }
                 catch{
-                    completion(nil)
+                    completion(.failure(error))
                 }
             }
         }.resume()

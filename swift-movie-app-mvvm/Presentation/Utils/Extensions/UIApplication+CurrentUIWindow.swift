@@ -11,6 +11,5 @@ extension UIApplication {
             .first { $0.isKeyWindow }
         
         return window
-        
     }
 }
