@@ -57,10 +57,9 @@ final class FavoritesViewModel : FavoritesViewModelProtocol {
                 delegate?.restore()
             }
             
-        case .failure(let error):
+        case .failure(_):
             favoriteMovies = []
             delegate?.showBackgroundMessage(AppTexts.somethingWentWrong)
-            // SHOW ERROR
         }
         
         delegate?.reloadCollectionView()

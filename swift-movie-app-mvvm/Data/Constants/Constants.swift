@@ -8,7 +8,11 @@
 import Foundation
 
 class Constants{
+    // Storyboard
+    static let mainStoryboardIdentifier = "Main"
+    
     // Home
+    static let home = "Home"
     static let homeVcIdentifier = "HomeViewController"
     static let currentMoviesCelIdentifier = "MovieCell"
     static let upcomingMoviesCellIdentifier = "UpcomingMoviesCell"
@@ -21,6 +25,8 @@ class Constants{
     static let detailsVcIdentifier = "DetailsViewController"
     
     // Favorites
+    static let favorites = "Favorites"
+    static let favoritesVcIdentifier = "FavoritesViewController"
     static let favoriteCellIdentifier = "FavoriteCell"
     
     // CoreData

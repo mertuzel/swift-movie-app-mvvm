@@ -11,23 +11,29 @@ final class FavoritesViewController: UIViewController{
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var clearButton: UIBarButtonItem!
     
-    var viewModel : FavoritesViewModelProtocol? {
-        didSet{
-            viewModel?.delegate = self
-        }
+    var viewModel : FavoritesViewModelProtocol
+    
+    init?(coder: NSCoder, viewModel: FavoritesViewModelProtocol) {
+        self.viewModel = viewModel
+        super.init(coder: coder)
+        self.viewModel.delegate = self
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("You must create this view controller with a viewModel.")
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         navigationController?.navigationBar.prefersLargeTitles = true
-        viewModel?.initialize()
+        viewModel.initialize()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         
-        viewModel?.fetchFavoriteMovies()
+        viewModel.fetchFavoriteMovies()
     }
     
     @IBAction func onClearTap(_ sender: UIBarButtonItem) {
@@ -64,12 +70,12 @@ extension FavoritesViewController : FavoritesViewModelDelegate, Alertable {
     }
     
     func removeItems() {
-        guard let moviesCount = viewModel?.favoriteMovies.count else { return }
+        let moviesCount = viewModel.favoriteMovies.count
         
         showAlert(title: AppTexts.areYouSure, message: AppTexts.deleteAllFavMessage, actions: [
             CustomAlertAction(title : AppTexts.yes, function : {
                 [weak self] action in
-                self?.viewModel?.clearFavoriteList()
+                self?.viewModel.clearFavoriteList()
                 
                 var indexPathList : [IndexPath] = []
                 
@@ -80,7 +86,7 @@ extension FavoritesViewController : FavoritesViewModelDelegate, Alertable {
                 self?.collectionView.performBatchUpdates {
                     [weak self] in
                     self?.collectionView.deleteItems(at: indexPathList)
-                    self?.viewModel?.favoriteMovies.removeAll()
+                    self?.viewModel.favoriteMovies.removeAll()
                 }
             }),
             CustomAlertAction((title : AppTexts.no
@@ -96,25 +102,22 @@ extension FavoritesViewController : FavoritesViewModelDelegate, Alertable {
 
 extension FavoritesViewController : UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel?.favoriteMovies.count ?? 0
+        return viewModel.favoriteMovies.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.favoriteCellIdentifier, for: indexPath) as! FavoriteCollectionViewCell
-        cell.initializeCell(imageUrl:MovieEndpoint.image(path: viewModel?.favoriteMovies[indexPath.item].imageUrl ?? "").url)
+        cell.initializeCell(imageUrl:MovieEndpoint.image(path: viewModel.favoriteMovies[indexPath.item].imageUrl ?? "").url)
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let vc = storyboard?.instantiateViewController(withIdentifier: Constants.detailsVcIdentifier) as? DetailsViewController else { return }
+        guard let movieId = viewModel.favoriteMovies[indexPath.row].movieId , let detailsVc = storyboard?.instantiateViewController(identifier: Constants.detailsVcIdentifier, creator: { coder in
+            return DetailsViewController(coder: coder, viewModel: DetailsViewModel(movieService: WebService(), movieId: Int(truncating: movieId), isFavorite: true, isFavoriteError: false))
+        }) else { return }
         
-        if let id = viewModel?.favoriteMovies[indexPath.row].movieId{
-            vc.viewModel = DetailsViewModel()
-            vc.movieId = id as? Int
-            vc.isFavorite = true
-            vc.isFavoriteError = false
-            navigationController?.pushViewController(vc, animated: true)
-        }
+        navigationController?.pushViewController(detailsVc, animated: true)
+        
     }
 }
 

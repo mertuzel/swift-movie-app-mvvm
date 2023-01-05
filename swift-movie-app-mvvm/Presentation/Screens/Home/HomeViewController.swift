@@ -10,26 +10,34 @@ import UIKit
 final class HomeViewController: UIViewController{
     @IBOutlet private weak var tableView: UITableView!
     
-    var viewModel : HomeViewModelProtocol? {
-        didSet{
-            viewModel?.delegate = self
-        }
+    var viewModel : HomeViewModelProtocol
+    private var loadingIndicator : UIActivityIndicatorView?
+    
+    weak var upcomingMoviesTableViewCell : UpcomingMoviesTableViewCell?
+    
+    init?(coder: NSCoder, viewModel: HomeViewModelProtocol) {
+        self.viewModel = viewModel
+        super.init(coder: coder)
+        self.viewModel.delegate = self
     }
     
-    private var loadingIndicator : UIActivityIndicatorView?
+    required init?(coder: NSCoder) {
+        fatalError("You must create this view controller with a viewModel.")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         navigationController?.navigationBar.prefersLargeTitles = true
-        viewModel?.initialize()
-        tableView.accessibilityIdentifier = "myTableView"
+        viewModel.initialize()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         
-        viewModel?.fetchFavoriteMovies { }
+        
+        upcomingMoviesTableViewCell?.pauseOrContinueTimer(isContinue: true)
+        viewModel.fetchFavoriteMovies { }
     }
     
     @objc private func onNavBarTap(){
@@ -44,24 +52,20 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
         }
         
         else {
-            return viewModel?.currentMovies.count ?? 0
+            return viewModel.currentMovies.count
         }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: Constants.upcomingMoviesCellIdentifier,for: indexPath) as! UpcomingMoviesTableViewCell
-            cell.initializeCell(movies:Array((viewModel?.upcomingMovies ?? []).prefix(5)))
-            return cell
+            upcomingMoviesTableViewCell = (tableView.dequeueReusableCell(withIdentifier: Constants.upcomingMoviesCellIdentifier,for: indexPath) as! UpcomingMoviesTableViewCell)
+            upcomingMoviesTableViewCell!.initializeCell(movies:Array((viewModel.upcomingMovies)),parentVc: self)
+            return upcomingMoviesTableViewCell!
         }
         
         else{
             let cell = tableView.dequeueReusableCell(withIdentifier: Constants.currentMoviesCelIdentifier,for: indexPath) as! MovieTableViewCell
-            cell.initializeCell(imageUrl: MovieEndpoint.image(path:  self.viewModel?.currentMovies[indexPath.row].posterPath ?? "").url, title: viewModel?.currentMovies[indexPath.row].title ?? "", description: viewModel?.currentMovies[indexPath.row].overview ?? "")
-            
-            cell.isAccessibilityElement = true
-            cell.accessibilityIdentifier = "cell_\(indexPath.row)"
-            
+            cell.initializeCell(imageUrl: MovieEndpoint.image(path:  self.viewModel.currentMovies[indexPath.row].posterPath ?? "").url, title: viewModel.currentMovies[indexPath.row].title ?? "", description: viewModel.currentMovies[indexPath.row].overview ?? "")
             return cell
         }
     }
@@ -71,8 +75,6 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        guard let viewModel = viewModel else { return }
-        
         if viewModel.currentMovies.count-1 == indexPath.row{
             fetchMoreIndicator(to: true)
             viewModel.loadCurrentMovies { [ weak self] in
@@ -82,15 +84,12 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let vc = storyboard?.instantiateViewController(withIdentifier: Constants.detailsVcIdentifier) as? DetailsViewController else { return }
+        guard let movieId = viewModel.currentMovies[indexPath.row].id ,  let detailsVc = storyboard?.instantiateViewController(identifier: Constants.detailsVcIdentifier, creator: { coder in
+            return DetailsViewController(coder: coder, viewModel: DetailsViewModel(movieService: WebService(), movieId: movieId, isFavorite: self.viewModel.isMovieFavorite(movieId: movieId), isFavoriteError: self.viewModel.isFavoriteError))
+        }) else { return }
         
-        if let id = viewModel?.currentMovies[indexPath.row].id{
-            vc.viewModel = DetailsViewModel()
-            vc.movieId = id
-            vc.isFavorite = viewModel?.isMovieFavorite(movieId: id)
-            vc.isFavoriteError = viewModel?.isFavoriteError
-            navigationController?.pushViewController(vc, animated: true)
-        }
+        upcomingMoviesTableViewCell?.pauseOrContinueTimer(isContinue: false)
+        navigationController?.pushViewController(detailsVc, animated: true)
     }
 }
 

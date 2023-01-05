@@ -31,6 +31,7 @@ protocol HomeViewModelDelegate{
 }
 
 final class HomeViewModel : HomeViewModelProtocol{
+    var movieService : MovieServiceProtocol
     var delegate: HomeViewModelDelegate?
     var currentMovies: [Movie] = []
     var upcomingMovies: [Movie] = []
@@ -41,6 +42,10 @@ final class HomeViewModel : HomeViewModelProtocol{
     var favoriteMovies : [FavoriteMovie] = []
     
     lazy var appDelegate = delegate?.getAppDelegate()
+    
+    init(movieService: MovieServiceProtocol){
+        self.movieService = movieService
+    }
     
     func initialize() {
         delegate?.prepareTableView()
@@ -80,7 +85,7 @@ final class HomeViewModel : HomeViewModelProtocol{
         if(!isAllFetched){
             guard let url = URL(string:MovieEndpoint.movies(page: currentPage, upcoming: false).url) else { return }
             
-            WebService.shared.getMovies(url: url) { [weak self] result in
+            movieService.getMovies(url: url) { [weak self] result in
                 switch result {
                 case .success(let movies):
                     self?.currentMovies += movies
@@ -104,7 +109,7 @@ final class HomeViewModel : HomeViewModelProtocol{
     func loadUpcomingMovies(completion: @escaping () -> Void) {
         guard let url = URL(string:MovieEndpoint.movies(page: currentPage, upcoming: true).url) else { return }
         
-        WebService.shared.getMovies(url: url) { [weak self] result in
+        movieService.getMovies(url: url) { [weak self] result in
             switch result {
             case .success(let movies):
                 self?.upcomingMovies = movies
@@ -114,7 +119,6 @@ final class HomeViewModel : HomeViewModelProtocol{
             }
             
             completion()
-            
         }
     }
     

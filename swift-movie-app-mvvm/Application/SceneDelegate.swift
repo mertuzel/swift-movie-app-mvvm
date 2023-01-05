@@ -13,41 +13,32 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        
         guard let winScene = (scene as? UIWindowScene) else { return }
+        
         window = UIWindow(windowScene: winScene)
         
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        if let initialViewController = storyboard.instantiateViewController(identifier: Constants.tabBarIdentier) as? UITabBarController{
-            window?.rootViewController = initialViewController
-            
-            for viewController in initialViewController.viewControllers ?? [] {
-                if let navController = viewController as? UINavigationController {
-                    if let homeVC = navController.viewControllers.first as? HomeViewController {
-                        homeVC.viewModel = HomeViewModel()
-                    }
-                }
-                
-                if let navController = viewController as? UINavigationController {
-                    if let favoritesVc = navController.viewControllers.first as? FavoritesViewController {
-                        favoritesVc.viewModel = FavoritesViewModel()
-                    }
-                }
-                
-               
-            }
-            
-            let indicatorView = LoadingView.shared.getCreatedView()
-            window?.makeKeyAndVisible()
-            guard let indicatorView = indicatorView else { return }
-            window?.addSubview(indicatorView)
-        }
+        let storyboard = UIStoryboard(name: Constants.mainStoryboardIdentifier, bundle: nil)
         
+        guard let initialViewController = storyboard.instantiateViewController(identifier:Constants.tabBarIdentier) as? UITabBarController else { return }
         
+        let homeVc = storyboard.instantiateViewController(identifier: Constants.homeVcIdentifier, creator: { coder in
+            return HomeViewController(coder: coder, viewModel: HomeViewModel(movieService: WebService()))
+        })
+        let homeNavController = UINavigationController(rootViewController:homeVc)
+        homeNavController.tabBarItem = UITabBarItem(title: Constants.home, image: UIImage(systemName: "house.fill"), tag: 0)
         
+        let favoritesVc = storyboard.instantiateViewController(identifier: Constants.favoritesVcIdentifier, creator: { coder in
+            return FavoritesViewController(coder: coder, viewModel: FavoritesViewModel())
+        })
+        let favoritesNavController = UINavigationController(rootViewController:favoritesVc)
+        favoritesNavController.tabBarItem = UITabBarItem(title: Constants.favorites, image: UIImage(systemName: "heart.fill"), tag: 0)
+        
+        initialViewController.viewControllers = [homeNavController,favoritesNavController]
+        window?.rootViewController = initialViewController
+        let indicatorView = LoadingView.shared.getCreatedView()
+        window?.makeKeyAndVisible()
+        guard let indicatorView = indicatorView else { return }
+        window?.addSubview(indicatorView)
     }
     
     func sceneDidDisconnect(_ scene: UIScene) {

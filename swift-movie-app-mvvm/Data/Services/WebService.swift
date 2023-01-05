@@ -7,9 +7,7 @@
 
 import Foundation
 
-struct WebService{
-    static let shared = WebService()
-    
+struct WebService : MovieServiceProtocol{
     func getMovies(url : URL, completion : @escaping (Result<[Movie],Error>)->() ){
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error{

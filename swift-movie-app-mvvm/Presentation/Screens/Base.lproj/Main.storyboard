@@ -48,17 +48,73 @@
                                                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="06r-qy-e69">
                                                                         <rect key="frame" x="0.0" y="0.0" width="428" height="181"/>
                                                                     </imageView>
+                                                                    <view alpha="0.75" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TWe-eX-awy" customClass="ANCustomView" customModule="swift_movie_app_mvvm" customModuleProvider="target">
+                                                                        <rect key="frame" x="0.0" y="78" width="428" height="103"/>
+                                                                        <subviews>
+                                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qYF-ef-NNH">
+                                                                                <rect key="frame" x="10" y="10" width="408" height="23"/>
+                                                                                <constraints>
+                                                                                    <constraint firstAttribute="height" constant="23" id="nbU-uX-d8A"/>
+                                                                                </constraints>
+                                                                                <fontDescription key="fontDescription" type="italicSystem" pointSize="19"/>
+                                                                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                                <nil key="highlightedColor"/>
+                                                                            </label>
+                                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Description" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Exc-Dt-oME">
+                                                                                <rect key="frame" x="10" y="33" width="408" height="50"/>
+                                                                                <fontDescription key="fontDescription" type="italicSystem" pointSize="13"/>
+                                                                                <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                                <nil key="highlightedColor"/>
+                                                                            </label>
+                                                                        </subviews>
+                                                                        <color key="backgroundColor" systemColor="labelColor"/>
+                                                                        <constraints>
+                                                                            <constraint firstAttribute="trailing" secondItem="Exc-Dt-oME" secondAttribute="trailing" constant="10" id="4Da-zw-LGY"/>
+                                                                            <constraint firstItem="Exc-Dt-oME" firstAttribute="leading" secondItem="TWe-eX-awy" secondAttribute="leading" constant="10" id="Aox-Uj-HlY"/>
+                                                                            <constraint firstItem="qYF-ef-NNH" firstAttribute="leading" secondItem="TWe-eX-awy" secondAttribute="leading" constant="10" id="DkZ-6x-VKx"/>
+                                                                            <constraint firstItem="Exc-Dt-oME" firstAttribute="top" secondItem="qYF-ef-NNH" secondAttribute="bottom" id="QS3-pz-zDg"/>
+                                                                            <constraint firstAttribute="height" constant="103" id="Rva-BJ-0Yt"/>
+                                                                            <constraint firstAttribute="trailing" secondItem="qYF-ef-NNH" secondAttribute="trailing" constant="10" id="etP-5L-392"/>
+                                                                            <constraint firstItem="qYF-ef-NNH" firstAttribute="top" secondItem="TWe-eX-awy" secondAttribute="top" constant="10" id="gBg-UW-RG2"/>
+                                                                            <constraint firstAttribute="bottom" secondItem="Exc-Dt-oME" secondAttribute="bottom" constant="20" id="zyA-Dl-6pa"/>
+                                                                        </constraints>
+                                                                        <userDefinedRuntimeAttributes>
+                                                                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                                                <real key="value" value="0.0"/>
+                                                                            </userDefinedRuntimeAttribute>
+                                                                            <userDefinedRuntimeAttribute type="color" keyPath="shadowColor">
+                                                                                <color key="value" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                            </userDefinedRuntimeAttribute>
+                                                                            <userDefinedRuntimeAttribute type="size" keyPath="shadowOffset">
+                                                                                <size key="value" width="2" height="-20"/>
+                                                                            </userDefinedRuntimeAttribute>
+                                                                            <userDefinedRuntimeAttribute type="number" keyPath="shadowOpacity">
+                                                                                <real key="value" value="1"/>
+                                                                            </userDefinedRuntimeAttribute>
+                                                                            <userDefinedRuntimeAttribute type="number" keyPath="shadowRadius">
+                                                                                <real key="value" value="10"/>
+                                                                            </userDefinedRuntimeAttribute>
+                                                                            <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                                                                <real key="value" value="0.0"/>
+                                                                            </userDefinedRuntimeAttribute>
+                                                                        </userDefinedRuntimeAttributes>
+                                                                    </view>
                                                                 </subviews>
                                                                 <constraints>
                                                                     <constraint firstItem="06r-qy-e69" firstAttribute="leading" secondItem="Gz7-lR-3AL" secondAttribute="leading" id="2dM-f8-VFO"/>
                                                                     <constraint firstAttribute="trailing" secondItem="06r-qy-e69" secondAttribute="trailing" id="8xM-LL-y6S"/>
                                                                     <constraint firstAttribute="bottom" secondItem="06r-qy-e69" secondAttribute="bottom" id="Bx9-TS-ZRf"/>
+                                                                    <constraint firstAttribute="trailing" secondItem="TWe-eX-awy" secondAttribute="trailing" id="ft4-ki-FvH"/>
+                                                                    <constraint firstAttribute="bottom" secondItem="TWe-eX-awy" secondAttribute="bottom" id="hmG-N3-Qii"/>
                                                                     <constraint firstItem="06r-qy-e69" firstAttribute="top" secondItem="Gz7-lR-3AL" secondAttribute="top" id="iV2-2c-15q"/>
+                                                                    <constraint firstItem="TWe-eX-awy" firstAttribute="leading" secondItem="Gz7-lR-3AL" secondAttribute="leading" id="mh4-sQ-dXH"/>
                                                                 </constraints>
                                                             </collectionViewCellContentView>
                                                             <size key="customSize" width="428" height="181"/>
                                                             <connections>
                                                                 <outlet property="imageView" destination="06r-qy-e69" id="nU0-cK-hq7"/>
+                                                                <outlet property="movieDescription" destination="Exc-Dt-oME" id="Htr-Fr-65l"/>
+                                                                <outlet property="movieTitle" destination="qYF-ef-NNH" id="feu-Ug-xFM"/>
                                                             </connections>
                                                         </collectionViewCell>
                                                     </cells>
@@ -161,7 +217,7 @@
         <!--Favorites-->
         <scene sceneID="YyO-eK-9Nt">
             <objects>
-                <viewController id="Xj3-9x-xFe" customClass="FavoritesViewController" customModule="swift_movie_app_mvvm" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="FavoritesViewController" id="Xj3-9x-xFe" customClass="FavoritesViewController" customModule="swift_movie_app_mvvm" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="51w-B0-2C7">
                         <rect key="frame" x="0.0" y="0.0" width="428" height="926"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -409,7 +465,7 @@
         <!--Home-->
         <scene sceneID="KPf-x0-ZV0">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="L5G-kh-LoO" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="homeNavController" automaticallyAdjustsScrollViewInsets="NO" id="L5G-kh-LoO" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Home" image="house" catalog="system" id="cXI-fe-pg5"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="pd2-7Z-yYn">
@@ -435,10 +491,6 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
-                    <connections>
-                        <segue destination="L5G-kh-LoO" kind="relationship" relationship="viewControllers" id="wQd-Wn-PlT"/>
-                        <segue destination="RRi-Eh-lu2" kind="relationship" relationship="viewControllers" id="fiz-dD-dGA"/>
-                    </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="hUw-SU-m3u" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -447,7 +499,7 @@
         <!--Favorites-->
         <scene sceneID="hWB-ro-EgE">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="RRi-Eh-lu2" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="favNavController" automaticallyAdjustsScrollViewInsets="NO" id="RRi-Eh-lu2" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Favorites" image="heart.fill" catalog="system" id="zFV-2p-KTI"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="333-kj-osz">
@@ -472,6 +524,9 @@
         <image name="heart.fill" catalog="system" width="128" height="107"/>
         <image name="house" catalog="system" width="128" height="104"/>
         <image name="star.fill" catalog="system" width="128" height="116"/>
+        <systemColor name="labelColor">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

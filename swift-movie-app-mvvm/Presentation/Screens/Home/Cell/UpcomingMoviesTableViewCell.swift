@@ -15,28 +15,49 @@ final class UpcomingMoviesTableViewCell: UITableViewCell {
     private var timer : Timer?
     private var currentIndex : Int = 0
     
+    private var startTime: TimeInterval?
+    private var elapsedTime: TimeInterval?
+    var interval: Double = 5.0
+    private weak var parentVc : HomeViewController?
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         
         prepareCollectionView()
     }
     
-    func initializeCell(movies: [Movie]){
+    func initializeCell(movies: [Movie], parentVc : HomeViewController) {
         self.movies = movies
         collectionView.reloadData()
         
         if(!movies.isEmpty){
-            startTimer()
+            runTimer(interval:interval)
         }
-        
+        self.parentVc = parentVc
         pageControl.numberOfPages = movies.count
     }
     
-    private func startTimer(){
-        timer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(changeIndex), userInfo: nil, repeats: true)
+    func pauseOrContinueTimer(isContinue : Bool){
+        if isContinue {
+            guard timer == nil else { return }
+            
+            runTimer(interval: interval)
+        }
+        else{
+            timer?.invalidate()
+            timer = nil
+        }
     }
     
-    @objc private func changeIndex(){
+    private func runTimer(interval: Double) {
+        startTime = Date.timeIntervalSinceReferenceDate
+        
+        timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
+            self?.changeIndex()
+        }
+    }
+    
+    private func changeIndex(){
         currentIndex += 1
         
         if currentIndex == movies.count  {
@@ -53,6 +74,16 @@ final class UpcomingMoviesTableViewCell: UITableViewCell {
         collectionView.delegate = self
         collectionView.dataSource = self
     }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        currentIndex = Int(collectionView.contentOffset.x / collectionView.frame.size.width)
+        pageControl.currentPage = currentIndex
+        pauseOrContinueTimer(isContinue: true)
+    }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        pauseOrContinueTimer(isContinue: false)
+    }
 }
 
 extension UpcomingMoviesTableViewCell : UICollectionViewDelegate, UICollectionViewDataSource {
@@ -62,8 +93,18 @@ extension UpcomingMoviesTableViewCell : UICollectionViewDelegate, UICollectionVi
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.upcomingMoviesCollectionCellIndentifier, for: indexPath) as! UpcomingMoviesCollectionViewCell
-        cell.initializeCell(imageUrl:MovieEndpoint.image(path:  movies[indexPath.item].backdropPath ?? "").url)
+        let movie = movies[indexPath.item]
+        cell.initializeCell(imageUrl:MovieEndpoint.image(path: movie.backdropPath ?? "").url,movieTitle: movie.title ?? "",description: movie.overview ?? "")
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let parentVc = parentVc, let movieId = movies[indexPath.row].id ,  let detailsVc = parentVc.storyboard?.instantiateViewController(identifier: Constants.detailsVcIdentifier, creator: { coder in
+            return DetailsViewController(coder: coder, viewModel: DetailsViewModel(movieService: WebService(), movieId: movieId, isFavorite: parentVc.viewModel.isMovieFavorite(movieId: movieId), isFavoriteError: parentVc.viewModel.isFavoriteError))
+        }) else { return }
+        
+        pauseOrContinueTimer(isContinue: false)
+        parentVc.navigationController?.pushViewController(detailsVc, animated: true)
     }
 }
 

@@ -10,9 +10,9 @@ import Foundation
 protocol DetailsViewModelProtocol{
     var delegate: DetailsViewModelDelegate? { get set }
     var movie : Movie? { get }
-    var movieId : Int? { get set }
-    var isFavorite : Bool? { get set }
-    var isFavoriteError : Bool? { get set }
+    var movieId : Int { get set }
+    var isFavorite : Bool { get set }
+    var isFavoriteError : Bool { get set }
     func getMovie()
     func toggleFavoriteState()
 }
@@ -28,20 +28,28 @@ protocol DetailsViewModelDelegate{
 
 final class DetailsViewModel : DetailsViewModelProtocol{
     var delegate: DetailsViewModelDelegate?
-    var movieId: Int?
+    var movieService : MovieServiceProtocol
+    var movieId: Int
     var movie : Movie?
     
-    var isFavoriteError : Bool?
-    var isFavorite : Bool?
+    var isFavoriteError : Bool
+    var isFavorite : Bool
     
     lazy var appDelegate = delegate?.getAppDelegate()
     
+    init(movieService: MovieServiceProtocol, movieId : Int, isFavorite: Bool, isFavoriteError: Bool){
+        self.movieService = movieService
+        self.movieId = movieId
+        self.isFavorite = isFavorite
+        self.isFavoriteError = isFavoriteError
+        
+    }
+    
     func getMovie() {
-        guard let movieId = movieId else { return }
         guard let url = URL(string:MovieEndpoint.movie(id: movieId).url) else { return }
         
         delegate?.changeLoadingStatus(to: true)
-        WebService.shared.getMovie(url: url) { [ weak self] result in
+        movieService.getMovie(url: url) { [ weak self] result in
             guard let self = self else { return }
             
             switch result {
@@ -50,7 +58,7 @@ final class DetailsViewModel : DetailsViewModelProtocol{
                 self.delegate?.setup()
                 self.delegate?.checkFavoriteButtonUI()
                 
-                if self.isFavoriteError != nil && self.isFavoriteError! {
+                if self.isFavoriteError {
                     self.delegate?.removeFavoriteButton()
                 }
                 
@@ -65,9 +73,8 @@ final class DetailsViewModel : DetailsViewModelProtocol{
     }
     
     func toggleFavoriteState() {
-        guard let isFavorite = isFavorite else { return }
-        guard let appDelegate else { return }
-        guard let movie = movie else { return }
+        guard let movie, let appDelegate else { return }
+        
         
         let managedContext = appDelegate.persistentContainer.viewContext
         let favoriteOperations = FavoriteOperations(viewContext: managedContext)
