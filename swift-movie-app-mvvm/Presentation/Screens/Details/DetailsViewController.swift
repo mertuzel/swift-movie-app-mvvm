@@ -32,7 +32,7 @@ final class DetailsViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = nil
         navigationItem.largeTitleDisplayMode = .never
-        viewModel.getMovie()
+        viewModel.getMovie() { }
     }
     
     @IBAction func onFavoriteButtonTap(_ sender: Any) {

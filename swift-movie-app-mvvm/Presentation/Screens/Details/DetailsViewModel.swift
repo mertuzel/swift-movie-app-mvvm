@@ -13,7 +13,7 @@ protocol DetailsViewModelProtocol{
     var movieId : Int { get set }
     var isFavorite : Bool { get set }
     var isFavoriteError : Bool { get set }
-    func getMovie()
+    func getMovie(completion : @escaping () -> Void)
     func toggleFavoriteState()
 }
 
@@ -28,24 +28,26 @@ protocol DetailsViewModelDelegate{
 
 final class DetailsViewModel : DetailsViewModelProtocol{
     var delegate: DetailsViewModelDelegate?
+    var favoriteOperations : FavoriteOperationsProtocol
     var movieService : MovieServiceProtocol
     var movieId: Int
     var movie : Movie?
     
     var isFavoriteError : Bool
     var isFavorite : Bool
+    var isLoading = true
     
     lazy var appDelegate = delegate?.getAppDelegate()
     
-    init(movieService: MovieServiceProtocol, movieId : Int, isFavorite: Bool, isFavoriteError: Bool){
+    init(movieService: MovieServiceProtocol, movieId : Int, isFavorite: Bool, isFavoriteError: Bool, favoriteOperations : FavoriteOperationsProtocol){
         self.movieService = movieService
         self.movieId = movieId
         self.isFavorite = isFavorite
         self.isFavoriteError = isFavoriteError
-        
+        self.favoriteOperations = favoriteOperations
     }
     
-    func getMovie() {
+    func getMovie(completion : @escaping () -> Void) {
         guard let url = URL(string:MovieEndpoint.movie(id: movieId).url) else { return }
         
         delegate?.changeLoadingStatus(to: true)
@@ -69,17 +71,21 @@ final class DetailsViewModel : DetailsViewModelProtocol{
             }
             
             self.delegate?.changeLoadingStatus(to: false)
+            self.isLoading = false
+            completion()
         }
     }
     
     func toggleFavoriteState() {
-        guard let movie, let appDelegate else { return }
-        
-        
-        let managedContext = appDelegate.persistentContainer.viewContext
-        let favoriteOperations = FavoriteOperations(viewContext: managedContext)
-        favoriteOperations.toggleFavorite(isAdd: !isFavorite, movie: movie)
-        self.isFavorite = !isFavorite
-        delegate?.checkFavoriteButtonUI()
+        guard let movie else { return }
+
+        let result = favoriteOperations.toggleFavorite(isAdd: !isFavorite, movie: movie)
+        switch result {
+        case .success(_):
+            self.isFavorite = !isFavorite
+            delegate?.checkFavoriteButtonUI()
+        case .failure(_):
+            return
+        }
     }
 }

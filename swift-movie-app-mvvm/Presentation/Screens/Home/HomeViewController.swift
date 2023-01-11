@@ -59,7 +59,7 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
             upcomingMoviesTableViewCell = (tableView.dequeueReusableCell(withIdentifier: Constants.upcomingMoviesCellIdentifier,for: indexPath) as! UpcomingMoviesTableViewCell)
-            upcomingMoviesTableViewCell!.initializeCell(movies:Array((viewModel.upcomingMovies)),parentVc: self)
+            upcomingMoviesTableViewCell!.initializeCell(movies:Array((viewModel.upcomingMovies)),parentVc: self,favoriteOperations: viewModel.favoriteOperations)
             return upcomingMoviesTableViewCell!
         }
         
@@ -85,7 +85,7 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let movieId = viewModel.currentMovies[indexPath.row].id ,  let detailsVc = storyboard?.instantiateViewController(identifier: Constants.detailsVcIdentifier, creator: { coder in
-            return DetailsViewController(coder: coder, viewModel: DetailsViewModel(movieService: WebService(), movieId: movieId, isFavorite: self.viewModel.isMovieFavorite(movieId: movieId), isFavoriteError: self.viewModel.isFavoriteError))
+            return DetailsViewController(coder: coder, viewModel: DetailsViewModel(movieService: WebService(), movieId: movieId, isFavorite: self.viewModel.isMovieFavorite(movieId: movieId), isFavoriteError: self.viewModel.isFavoriteError,favoriteOperations: self.viewModel.favoriteOperations))
         }) else { return }
         
         upcomingMoviesTableViewCell?.pauseOrContinueTimer(isContinue: false)

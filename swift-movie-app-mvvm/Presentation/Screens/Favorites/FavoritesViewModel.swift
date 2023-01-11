@@ -11,6 +11,7 @@ import Foundation
 protocol FavoritesViewModelProtocol{
     var delegate: FavoritesViewModelDelegate? { get set }
     var favoriteMovies : [FavoriteMovie] { get set }
+    var favoriteOperations : FavoriteOperationsProtocol { get }
     func initialize()
     func fetchFavoriteMovies()
     func clearFavoriteList() -> Void
@@ -26,13 +27,17 @@ protocol FavoritesViewModelDelegate {
 }
 
 final class FavoritesViewModel : FavoritesViewModelProtocol {
+    var favoriteOperations: FavoriteOperationsProtocol
+    
     var delegate: FavoritesViewModelDelegate?
     
     var favoriteMovies : [FavoriteMovie] = [] {
         didSet { delegate?.changeClearButtonVisibility(to: !self.favoriteMovies.isEmpty) }
     }
     
-    lazy var appDelegate = delegate?.getAppDelegate()
+    init(favoriteOperations: FavoriteOperations) {
+        self.favoriteOperations = favoriteOperations
+    }
     
     func initialize() {
         delegate?.prepareCollectionView()
@@ -40,10 +45,6 @@ final class FavoritesViewModel : FavoritesViewModelProtocol {
     }
     
     func fetchFavoriteMovies(){
-        guard let appDelegate else { return }
-        
-        let managedContext = appDelegate.persistentContainer.viewContext
-        let favoriteOperations = FavoriteOperations(viewContext: managedContext)
         let result = favoriteOperations.fetchFavoriteList()
         switch result {
         case .success(let movieList):
@@ -66,10 +67,6 @@ final class FavoritesViewModel : FavoritesViewModelProtocol {
     }
     
     func clearFavoriteList() {
-        guard let appDelegate else { return }
-        
-        let managedContext = appDelegate.persistentContainer.viewContext
-        let favoriteOperations = FavoriteOperations(viewContext: managedContext)
         favoriteOperations.clearFavoriteList()
         delegate?.showBackgroundMessage(AppTexts.emptyFavoritesText)
     }

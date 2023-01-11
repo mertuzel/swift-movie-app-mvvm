@@ -14,6 +14,7 @@ final class UpcomingMoviesTableViewCell: UITableViewCell {
     private var movies = [Movie]()
     private var timer : Timer?
     private var currentIndex : Int = 0
+    private var favoriteOperations : FavoriteOperationsProtocol?
     
     private var startTime: TimeInterval?
     private var elapsedTime: TimeInterval?
@@ -26,8 +27,10 @@ final class UpcomingMoviesTableViewCell: UITableViewCell {
         prepareCollectionView()
     }
     
-    func initializeCell(movies: [Movie], parentVc : HomeViewController) {
+    
+    func initializeCell(movies: [Movie], parentVc : HomeViewController,favoriteOperations : FavoriteOperationsProtocol) {
         self.movies = movies
+        self.favoriteOperations = favoriteOperations
         collectionView.reloadData()
         
         if(!movies.isEmpty){
@@ -99,8 +102,8 @@ extension UpcomingMoviesTableViewCell : UICollectionViewDelegate, UICollectionVi
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let parentVc = parentVc, let movieId = movies[indexPath.row].id ,  let detailsVc = parentVc.storyboard?.instantiateViewController(identifier: Constants.detailsVcIdentifier, creator: { coder in
-            return DetailsViewController(coder: coder, viewModel: DetailsViewModel(movieService: WebService(), movieId: movieId, isFavorite: parentVc.viewModel.isMovieFavorite(movieId: movieId), isFavoriteError: parentVc.viewModel.isFavoriteError))
+        guard let parentVc = parentVc, let favoriteOperations = favoriteOperations, let movieId = movies[indexPath.row].id ,  let detailsVc = parentVc.storyboard?.instantiateViewController(identifier: Constants.detailsVcIdentifier, creator: { coder in
+            return DetailsViewController(coder: coder, viewModel: DetailsViewModel(movieService: WebService(), movieId: movieId, isFavorite: parentVc.viewModel.isMovieFavorite(movieId: movieId), isFavoriteError: parentVc.viewModel.isFavoriteError,favoriteOperations: favoriteOperations))
         }) else { return }
         
         pauseOrContinueTimer(isContinue: false)

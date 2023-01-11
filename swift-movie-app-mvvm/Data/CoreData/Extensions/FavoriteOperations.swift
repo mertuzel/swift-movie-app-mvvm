@@ -47,17 +47,16 @@ final class FavoriteOperations : FavoriteOperationsProtocol {
         }
     }
     
-    func toggleFavorite(isAdd : Bool, movie: Movie) {
-        if isAdd {
-            createFavoriteGame(movie: movie)
-            try? viewContext.save()
-        }
-        
-        else{
-            let request = NSFetchRequest<NSFetchRequestResult>(entityName: Constants.favoriteMovieDbEntityName)
-            request.predicate = NSPredicate.init(format: "movieId==\(String(describing: movie.id ?? 0))")
-            
-            do {
+    func toggleFavorite(isAdd : Bool, movie: Movie) -> Result<Void,Error>{
+        do{
+            if isAdd {
+                createFavoriteGame(movie: movie)
+                try viewContext.save()
+            }
+            else{
+                let request = NSFetchRequest<NSFetchRequestResult>(entityName: Constants.favoriteMovieDbEntityName)
+                request.predicate = NSPredicate.init(format: "movieId==\(String(describing: movie.id ?? 0))")
+                
                 let results: NSArray = try viewContext.fetch(request) as NSArray
                 
                 for object in results {
@@ -65,9 +64,12 @@ final class FavoriteOperations : FavoriteOperationsProtocol {
                 }
                 
                 try viewContext.save()
-            } catch {
-                print(error)
             }
+            
+            return .success(())
+        }
+        catch {
+            return .failure(error)
         }
     }
     

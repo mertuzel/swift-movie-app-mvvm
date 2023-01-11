@@ -21,14 +21,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         guard let initialViewController = storyboard.instantiateViewController(identifier:Constants.tabBarIdentier) as? UITabBarController else { return }
         
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let managedContext = appDelegate.persistentContainer.viewContext
         let homeVc = storyboard.instantiateViewController(identifier: Constants.homeVcIdentifier, creator: { coder in
-            return HomeViewController(coder: coder, viewModel: HomeViewModel(movieService: WebService()))
+            return HomeViewController(coder: coder, viewModel: HomeViewModel(movieService: WebService(),favoriteOperations: FavoriteOperations(viewContext: managedContext)))
         })
         let homeNavController = UINavigationController(rootViewController:homeVc)
         homeNavController.tabBarItem = UITabBarItem(title: Constants.home, image: UIImage(systemName: "house.fill"), tag: 0)
         
         let favoritesVc = storyboard.instantiateViewController(identifier: Constants.favoritesVcIdentifier, creator: { coder in
-            return FavoritesViewController(coder: coder, viewModel: FavoritesViewModel())
+            return FavoritesViewController(coder: coder, viewModel: FavoritesViewModel(favoriteOperations: FavoriteOperations(viewContext: managedContext)))
         })
         let favoritesNavController = UINavigationController(rootViewController:favoritesVc)
         favoritesNavController.tabBarItem = UITabBarItem(title: Constants.favorites, image: UIImage(systemName: "heart.fill"), tag: 0)

@@ -113,7 +113,7 @@ extension FavoritesViewController : UICollectionViewDelegate, UICollectionViewDa
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let movieId = viewModel.favoriteMovies[indexPath.row].movieId , let detailsVc = storyboard?.instantiateViewController(identifier: Constants.detailsVcIdentifier, creator: { coder in
-            return DetailsViewController(coder: coder, viewModel: DetailsViewModel(movieService: WebService(), movieId: Int(truncating: movieId), isFavorite: true, isFavoriteError: false))
+            return DetailsViewController(coder: coder, viewModel: DetailsViewModel(movieService: WebService(), movieId: Int(truncating: movieId), isFavorite: true, isFavoriteError: false,favoriteOperations: self.viewModel.favoriteOperations))
         }) else { return }
         
         navigationController?.pushViewController(detailsVc, animated: true)

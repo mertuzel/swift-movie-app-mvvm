@@ -12,7 +12,8 @@ protocol HomeViewModelProtocol{
     var currentMovies: [Movie] { get }
     var upcomingMovies : [Movie] { get }
     var isFavoriteError : Bool { get }
-    func fetchDatas()
+    var favoriteOperations : FavoriteOperationsProtocol { get }
+    func fetchDatas(completion : @escaping () -> Void)
     func loadCurrentMovies(completion : @escaping () -> Void)
     func initialize()
     func isMovieFavorite(movieId : Int) -> Bool
@@ -32,6 +33,7 @@ protocol HomeViewModelDelegate{
 
 final class HomeViewModel : HomeViewModelProtocol{
     var movieService : MovieServiceProtocol
+    var favoriteOperations : FavoriteOperationsProtocol
     var delegate: HomeViewModelDelegate?
     var currentMovies: [Movie] = []
     var upcomingMovies: [Movie] = []
@@ -40,21 +42,21 @@ final class HomeViewModel : HomeViewModelProtocol{
     var isAllFetched: Bool = false
     var currentPage : Int = 1
     var favoriteMovies : [FavoriteMovie] = []
+    var isLoading = true
     
-    lazy var appDelegate = delegate?.getAppDelegate()
-    
-    init(movieService: MovieServiceProtocol){
+    init(movieService: MovieServiceProtocol,favoriteOperations : FavoriteOperationsProtocol){
         self.movieService = movieService
+        self.favoriteOperations = favoriteOperations
     }
     
     func initialize() {
         delegate?.prepareTableView()
         delegate?.setLoadingIndicator()
         delegate?.setGestureRecognizer()
-        fetchDatas()
+        fetchDatas(){ }
     }
     
-    func fetchDatas() {
+    func fetchDatas(completion : @escaping () -> Void) {
         let dispatchGroup = DispatchGroup()
         
         dispatchGroup.enter()
@@ -78,6 +80,8 @@ final class HomeViewModel : HomeViewModelProtocol{
         dispatchGroup.notify(queue: .main){ [weak self] in
             self?.delegate?.reloadTableView()
             self?.delegate?.changeFullPageLoadingStatus(to: false)
+            self?.isLoading = false
+            completion()
         }
     }
     
@@ -123,11 +127,6 @@ final class HomeViewModel : HomeViewModelProtocol{
     }
     
     func fetchFavoriteMovies(completion: @escaping () -> Void){
-        guard let appDelegate else { return }
-        
-        let managedContext =
-        appDelegate.persistentContainer.viewContext
-        let favoriteOperations = FavoriteOperations(viewContext: managedContext)
         let result = favoriteOperations.fetchFavoriteList()
         switch result {
         case .success(let movieList):
