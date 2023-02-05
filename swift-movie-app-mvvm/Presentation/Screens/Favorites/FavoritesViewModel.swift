@@ -8,16 +8,17 @@
 import Foundation
 
 
-protocol FavoritesViewModelProtocol{
+protocol FavoritesViewModelProtocol : AnyObject{
     var delegate: FavoritesViewModelDelegate? { get set }
     var favoriteMovies : [FavoriteMovie] { get set }
     var favoriteOperations : FavoriteOperationsProtocol { get }
+    var movieService : MovieServiceProtocol { get }
     func initialize()
     func fetchFavoriteMovies()
     func clearFavoriteList() -> Void
 }
 
-protocol FavoritesViewModelDelegate {
+protocol FavoritesViewModelDelegate : AnyObject{
     func prepareCollectionView()
     func reloadCollectionView()
     func getAppDelegate() -> AppDelegate
@@ -27,16 +28,18 @@ protocol FavoritesViewModelDelegate {
 }
 
 final class FavoritesViewModel : FavoritesViewModelProtocol {
+    var movieService: MovieServiceProtocol
     var favoriteOperations: FavoriteOperationsProtocol
     
-    var delegate: FavoritesViewModelDelegate?
+    weak var delegate: FavoritesViewModelDelegate?
     
     var favoriteMovies : [FavoriteMovie] = [] {
         didSet { delegate?.changeClearButtonVisibility(to: !self.favoriteMovies.isEmpty) }
     }
     
-    init(favoriteOperations: FavoriteOperations) {
+    init(favoriteOperations: FavoriteOperations,movieService : MovieServiceProtocol) {
         self.favoriteOperations = favoriteOperations
+        self.movieService = movieService
     }
     
     func initialize() {

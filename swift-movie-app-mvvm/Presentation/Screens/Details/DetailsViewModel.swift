@@ -7,17 +7,17 @@
 
 import Foundation
 
-protocol DetailsViewModelProtocol{
+protocol DetailsViewModelProtocol : AnyObject {
     var delegate: DetailsViewModelDelegate? { get set }
     var movie : Movie? { get }
     var movieId : Int { get set }
-    var isFavorite : Bool { get set }
-    var isFavoriteError : Bool { get set }
-    func getMovie(completion : @escaping () -> Void)
+    var isFavorite : Bool? { get set }
+    var isFavoriteError : Bool? { get set }
+    func getAllDatas()
     func toggleFavoriteState()
 }
 
-protocol DetailsViewModelDelegate{
+protocol DetailsViewModelDelegate : AnyObject{
     func changeLoadingStatus(to value : Bool)
     func setup()
     func getAppDelegate() -> AppDelegate
@@ -27,24 +27,42 @@ protocol DetailsViewModelDelegate{
 }
 
 final class DetailsViewModel : DetailsViewModelProtocol{
-    var delegate: DetailsViewModelDelegate?
+    weak var delegate: DetailsViewModelDelegate?
     var favoriteOperations : FavoriteOperationsProtocol
     var movieService : MovieServiceProtocol
     var movieId: Int
     var movie : Movie?
     
-    var isFavoriteError : Bool
-    var isFavorite : Bool
+    var isFavoriteError : Bool?
+    var isFavorite : Bool?
     var isLoading = true
     
     lazy var appDelegate = delegate?.getAppDelegate()
     
-    init(movieService: MovieServiceProtocol, movieId : Int, isFavorite: Bool, isFavoriteError: Bool, favoriteOperations : FavoriteOperationsProtocol){
+    init(movieService: MovieServiceProtocol, movieId : Int, favoriteOperations : FavoriteOperationsProtocol){
         self.movieService = movieService
         self.movieId = movieId
-        self.isFavorite = isFavorite
-        self.isFavoriteError = isFavoriteError
         self.favoriteOperations = favoriteOperations
+    }
+    
+    func getAllDatas(){
+        let dispatchGroup = DispatchGroup()
+        dispatchGroup.enter()
+        dispatchGroup.enter()
+        
+        getMovie {
+            dispatchGroup.leave()
+        }
+        getFavoriteInfo(){
+            dispatchGroup.leave()
+        }
+        
+        dispatchGroup.notify(queue: .main){ [weak self] in
+            self?.delegate?.changeLoadingStatus(to: false)
+            self?.isLoading = false
+            self?.delegate?.setup()
+            
+        }
     }
     
     func getMovie(completion : @escaping () -> Void) {
@@ -57,29 +75,34 @@ final class DetailsViewModel : DetailsViewModelProtocol{
             switch result {
             case .success(let movie):
                 self.movie = movie
-                self.delegate?.setup()
-                self.delegate?.checkFavoriteButtonUI()
-                
-                if self.isFavoriteError {
-                    self.delegate?.removeFavoriteButton()
-                }
-                
             case .failure(_):
                 self.movie = nil
                 self.delegate?.setError()
-                self.delegate?.removeFavoriteButton()
             }
             
-            self.delegate?.changeLoadingStatus(to: false)
-            self.isLoading = false
             completion()
         }
     }
     
+    func getFavoriteInfo(completion : @escaping () -> Void){
+        switch favoriteOperations.isMovieFavorite(movieId: movieId){
+            
+        case .success(let bool):
+            isFavorite = bool
+            isFavoriteError = false
+            self.delegate?.checkFavoriteButtonUI()
+        case .failure(_):
+            isFavoriteError = true
+            self.delegate?.removeFavoriteButton()
+        }
+        completion()
+    }
+    
     func toggleFavoriteState() {
-        guard let movie else { return }
-
+        guard let movie,let isFavorite, let isFavoriteError, !isFavoriteError else { return }
+        
         let result = favoriteOperations.toggleFavorite(isAdd: !isFavorite, movie: movie)
+        
         switch result {
         case .success(_):
             self.isFavorite = !isFavorite

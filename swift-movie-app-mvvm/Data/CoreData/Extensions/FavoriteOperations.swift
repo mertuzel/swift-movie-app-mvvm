@@ -10,6 +10,24 @@ import CoreData
 
 
 final class FavoriteOperations : FavoriteOperationsProtocol {
+    func isMovieFavorite(movieId : Int) -> Result<Bool,Error>{
+        do{
+            let request = NSFetchRequest<NSFetchRequestResult>(entityName: Constants.favoriteMovieDbEntityName)
+            request.predicate = NSPredicate.init(format: "movieId==\(String(describing: movieId))")
+            
+            let results: NSArray = try viewContext.fetch(request) as NSArray
+            
+            if results.count>0, ((results[0] as? FavoriteMovie) != nil){
+                return .success(true)
+            }
+            
+            return .success(false)
+        }
+        catch {
+            return .failure(error)
+        }
+    }
+    
     var viewContext : NSManagedObjectContext
     
     init (viewContext : NSManagedObjectContext){

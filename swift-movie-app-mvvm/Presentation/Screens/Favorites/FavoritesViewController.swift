@@ -11,7 +11,7 @@ final class FavoritesViewController: UIViewController{
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var clearButton: UIBarButtonItem!
     
-    var viewModel : FavoritesViewModelProtocol
+    private let viewModel : FavoritesViewModelProtocol
     
     init?(coder: NSCoder, viewModel: FavoritesViewModelProtocol) {
         self.viewModel = viewModel
@@ -47,20 +47,20 @@ extension FavoritesViewController : FavoritesViewModelDelegate, Alertable {
     }
     
     func showBackgroundMessage(_ message : String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.collectionView.setBackgroundMessage(message: message)
+        DispatchQueue.main.async {
+            self.collectionView.setBackgroundMessage(message: message)
         }
     }
     
     func restore() {
-        DispatchQueue.main.async { [weak self] in
-            self?.collectionView.restore()
+        DispatchQueue.main.async {
+            self.collectionView.restore()
         }
     }
     
     func reloadCollectionView() {
-        DispatchQueue.main.async { [weak self] in
-            self?.collectionView.reloadData()
+        DispatchQueue.main.async {
+            self.collectionView.reloadData()
         }
     }
     
@@ -84,7 +84,6 @@ extension FavoritesViewController : FavoritesViewModelDelegate, Alertable {
                 }
                 
                 self?.collectionView.performBatchUpdates {
-                    [weak self] in
                     self?.collectionView.deleteItems(at: indexPathList)
                     self?.viewModel.favoriteMovies.removeAll()
                 }
@@ -113,11 +112,10 @@ extension FavoritesViewController : UICollectionViewDelegate, UICollectionViewDa
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let movieId = viewModel.favoriteMovies[indexPath.row].movieId , let detailsVc = storyboard?.instantiateViewController(identifier: Constants.detailsVcIdentifier, creator: { coder in
-            return DetailsViewController(coder: coder, viewModel: DetailsViewModel(movieService: WebService(), movieId: Int(truncating: movieId), isFavorite: true, isFavoriteError: false,favoriteOperations: self.viewModel.favoriteOperations))
+            return DetailsViewController(coder: coder, viewModel: DetailsViewModel(movieService: self.viewModel.movieService, movieId: Int(truncating: movieId),favoriteOperations: self.viewModel.favoriteOperations))
         }) else { return }
         
         navigationController?.pushViewController(detailsVc, animated: true)
-        
     }
 }
 

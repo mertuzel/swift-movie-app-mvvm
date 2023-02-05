@@ -17,6 +17,5 @@ class UpcomingMoviesCollectionViewCell: UICollectionViewCell {
         movieDescription.text = description
         let url = URL(string: imageUrl)
         imageView?.sd_setImage(with: url)
-        
     }
 }

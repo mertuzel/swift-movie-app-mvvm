@@ -15,7 +15,20 @@ final class DetailsViewController: UIViewController {
     @IBOutlet private weak var movieDescription: UILabel!
     @IBOutlet weak var errorView: UIView!
     
-    var viewModel: DetailsViewModelProtocol
+    private let viewModel: DetailsViewModelProtocol
+    private lazy var dateFormatterFrom : DateFormatter = {
+        var formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_us")
+        formatter.dateFormat = "yyyy-mm-dd"
+        return formatter
+    }()
+    
+    private lazy var dateFormatterTo : DateFormatter = {
+        var formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_us")
+        formatter.dateFormat = "MMMM d, yyyy"
+        return formatter
+    }()
     
     init?(coder: NSCoder, viewModel: DetailsViewModelProtocol) {
         self.viewModel = viewModel
@@ -32,7 +45,7 @@ final class DetailsViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = nil
         navigationItem.largeTitleDisplayMode = .never
-        viewModel.getMovie() { }
+        viewModel.getAllDatas()
     }
     
     @IBAction func onFavoriteButtonTap(_ sender: Any) {
@@ -42,8 +55,8 @@ final class DetailsViewController: UIViewController {
 
 extension DetailsViewController : DetailsViewModelDelegate,IndicatorProtocol {
     func setError(){
-        DispatchQueue.main.async { [weak self] in
-            self?.errorView.isHidden = false
+        DispatchQueue.main.async {
+            self.errorView.isHidden = false
         }
     }
     
@@ -52,45 +65,45 @@ extension DetailsViewController : DetailsViewModelDelegate,IndicatorProtocol {
     }
     
     func changeLoadingStatus(to value: Bool) {
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.main.async {
             if value {
-                self?.showIndicator()
+                self.showIndicator()
             }
             
             else{
-                self?.hideIndicator()
+                self.hideIndicator()
             }
         }
     }
     
     func checkFavoriteButtonUI(){
-        DispatchQueue.main.async { [weak self] in
-            if self?.viewModel.isFavorite ?? false{
-                self?.navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart.fill"), style: .plain, target: self, action:#selector(self?.onFavoriteButtonTap))
+        DispatchQueue.main.async {
+            if self.viewModel.isFavorite ?? false{
+                self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart.fill"), style: .plain, target: self, action:#selector(self.onFavoriteButtonTap))
             }
             
             else{
-                self?.navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart"), style: .plain, target: self, action:#selector(self?.onFavoriteButtonTap))
+                self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart"), style: .plain, target: self, action:#selector(self.onFavoriteButtonTap))
             }
         }
     }
     
     func removeFavoriteButton(){
-        DispatchQueue.main.async { [weak self] in
-            self?.navigationItem.rightBarButtonItem = nil
+        DispatchQueue.main.async {
+            self.navigationItem.rightBarButtonItem = nil
         }
     }
     
     func setup() {
-        guard let movie = viewModel.movie, let url = movie.backdropPath, let rating = movie.voteAverage, let title = movie.title, let releaseDate = movie.releaseDate, let movieDescription = movie.overview else { return }
+        guard let movie = viewModel.movie else { return }
         
-        DispatchQueue.main.async { [weak self] in
-            self?.title = title
-            self?.imageView?.sd_setImage(with: URL(string: MovieEndpoint.image(path: url).url))
-            self?.movieRating.text =  String(format: "%.1f", rating)
-            self?.releaseDate.text = releaseDate
-            self?.movieTitle.text = title
-            self?.movieDescription.text = movieDescription
+        DispatchQueue.main.async {
+            self.title = movie.title
+            self.imageView?.sd_setImage(with: URL(string: MovieEndpoint.image(path: movie.backdropPath ?? "").url))
+            self.movieRating.text =  String(format: "%.1f", movie.voteAverage ?? "")
+            self.releaseDate.text = self.dateFormatterTo.string(from: self.dateFormatterFrom.date(from: movie.releaseDate ?? "")!)
+            self.movieTitle.text = movie.title
+            self.movieDescription.text = movie.overview
         }
     }
     

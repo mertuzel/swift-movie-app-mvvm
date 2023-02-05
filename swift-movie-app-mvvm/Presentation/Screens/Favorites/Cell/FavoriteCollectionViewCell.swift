@@ -17,7 +17,7 @@ final class FavoriteCollectionViewCell: UICollectionViewCell {
     }
     
     private func setupImage() {
-        imageView.layer.cornerRadius = 8
-        imageView.clipsToBounds = true
+        imageView?.layer.cornerRadius = 8
+        imageView?.clipsToBounds = true
     }
 }

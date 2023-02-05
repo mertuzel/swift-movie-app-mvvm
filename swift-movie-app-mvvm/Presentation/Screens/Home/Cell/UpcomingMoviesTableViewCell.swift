@@ -15,28 +15,31 @@ final class UpcomingMoviesTableViewCell: UITableViewCell {
     private var timer : Timer?
     private var currentIndex : Int = 0
     private var favoriteOperations : FavoriteOperationsProtocol?
+    private var movieService : MovieServiceProtocol?
     
     private var startTime: TimeInterval?
     private var elapsedTime: TimeInterval?
+    private weak var pushDelegate : PushToDetailsDelegate?
     var interval: Double = 5.0
-    private weak var parentVc : HomeViewController?
+    
     
     override func awakeFromNib() {
         super.awakeFromNib()
         
         prepareCollectionView()
     }
-    
-    
-    func initializeCell(movies: [Movie], parentVc : HomeViewController,favoriteOperations : FavoriteOperationsProtocol) {
+
+    func initializeCell(movies: [Movie],favoriteOperations : FavoriteOperationsProtocol,movieService : MovieServiceProtocol,pushDelegate : PushToDetailsDelegate) {
         self.movies = movies
         self.favoriteOperations = favoriteOperations
+        self.movieService = movieService
         collectionView.reloadData()
+        self.pushDelegate = pushDelegate
         
         if(!movies.isEmpty){
             runTimer(interval:interval)
         }
-        self.parentVc = parentVc
+        
         pageControl.numberOfPages = movies.count
     }
     
@@ -102,12 +105,7 @@ extension UpcomingMoviesTableViewCell : UICollectionViewDelegate, UICollectionVi
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let parentVc = parentVc, let favoriteOperations = favoriteOperations, let movieId = movies[indexPath.row].id ,  let detailsVc = parentVc.storyboard?.instantiateViewController(identifier: Constants.detailsVcIdentifier, creator: { coder in
-            return DetailsViewController(coder: coder, viewModel: DetailsViewModel(movieService: WebService(), movieId: movieId, isFavorite: parentVc.viewModel.isMovieFavorite(movieId: movieId), isFavoriteError: parentVc.viewModel.isFavoriteError,favoriteOperations: favoriteOperations))
-        }) else { return }
-        
-        pauseOrContinueTimer(isContinue: false)
-        parentVc.navigationController?.pushViewController(detailsVc, animated: true)
+        pushDelegate?.pushToDetails(movieId: movies[indexPath.row].id)
     }
 }
 

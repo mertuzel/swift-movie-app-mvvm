@@ -10,7 +10,7 @@ import UIKit
 final class HomeViewController: UIViewController{
     @IBOutlet private weak var tableView: UITableView!
     
-    var viewModel : HomeViewModelProtocol
+    private let viewModel : HomeViewModelProtocol
     private var loadingIndicator : UIActivityIndicatorView?
     
     weak var upcomingMoviesTableViewCell : UpcomingMoviesTableViewCell?
@@ -35,9 +35,7 @@ final class HomeViewController: UIViewController{
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         
-        
         upcomingMoviesTableViewCell?.pauseOrContinueTimer(isContinue: true)
-        viewModel.fetchFavoriteMovies { }
     }
     
     @objc private func onNavBarTap(){
@@ -59,7 +57,7 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
             upcomingMoviesTableViewCell = (tableView.dequeueReusableCell(withIdentifier: Constants.upcomingMoviesCellIdentifier,for: indexPath) as! UpcomingMoviesTableViewCell)
-            upcomingMoviesTableViewCell!.initializeCell(movies:Array((viewModel.upcomingMovies)),parentVc: self,favoriteOperations: viewModel.favoriteOperations)
+            upcomingMoviesTableViewCell!.initializeCell(movies:Array((viewModel.upcomingMovies)),favoriteOperations: viewModel.favoriteOperations,movieService: viewModel.movieService,pushDelegate: self)
             return upcomingMoviesTableViewCell!
         }
         
@@ -85,7 +83,7 @@ extension HomeViewController : UITableViewDelegate, UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let movieId = viewModel.currentMovies[indexPath.row].id ,  let detailsVc = storyboard?.instantiateViewController(identifier: Constants.detailsVcIdentifier, creator: { coder in
-            return DetailsViewController(coder: coder, viewModel: DetailsViewModel(movieService: WebService(), movieId: movieId, isFavorite: self.viewModel.isMovieFavorite(movieId: movieId), isFavoriteError: self.viewModel.isFavoriteError,favoriteOperations: self.viewModel.favoriteOperations))
+            return DetailsViewController(coder: coder, viewModel: DetailsViewModel(movieService: self.viewModel.movieService, movieId: movieId,favoriteOperations: self.viewModel.favoriteOperations))
         }) else { return }
         
         upcomingMoviesTableViewCell?.pauseOrContinueTimer(isContinue: false)
@@ -155,3 +153,15 @@ extension HomeViewController : HomeViewModelDelegate, IndicatorProtocol{
     }
 }
 
+extension HomeViewController : PushToDetailsDelegate {
+    func pushToDetails(movieId: Int?) {
+        guard let movieId = movieId ,  let detailsVc = storyboard?.instantiateViewController(identifier: Constants.detailsVcIdentifier, creator: { coder in
+            return DetailsViewController(coder: coder, viewModel: DetailsViewModel(movieService: self.viewModel.movieService, movieId: movieId,favoriteOperations: self.viewModel.favoriteOperations))
+        }) else { return }
+        
+        upcomingMoviesTableViewCell?.pauseOrContinueTimer(isContinue: false)
+        navigationController?.pushViewController(detailsVc, animated: true)
+    }
+    
+    
+}

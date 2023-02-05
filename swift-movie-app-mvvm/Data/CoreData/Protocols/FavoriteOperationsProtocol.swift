@@ -13,4 +13,5 @@ protocol FavoriteOperationsProtocol {
     func fetchFavoriteList() -> Result<[FavoriteMovie],Error>
     func toggleFavorite(isAdd : Bool,movie : Movie) -> Result<Void,Error>
     func clearFavoriteList() -> Void
+    func isMovieFavorite(movieId : Int) -> Result<Bool,Error>
 }

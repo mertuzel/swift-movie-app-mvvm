@@ -29,13 +29,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let homeNavController = UINavigationController(rootViewController:homeVc)
         homeNavController.tabBarItem = UITabBarItem(title: Constants.home, image: UIImage(systemName: "house.fill"), tag: 0)
         
+        let sarchInputVc = SearchInputViewController(viewModel: SearchInputViewModel(movieService: WebService()),favoriteOperations: FavoriteOperations(viewContext: managedContext))
+        let searchInputNavController = UINavigationController(rootViewController:sarchInputVc)
+        searchInputNavController.tabBarItem = UITabBarItem(title: "Search", image: UIImage(systemName: "magnifyingglass"), tag: 1)
+        
         let favoritesVc = storyboard.instantiateViewController(identifier: Constants.favoritesVcIdentifier, creator: { coder in
-            return FavoritesViewController(coder: coder, viewModel: FavoritesViewModel(favoriteOperations: FavoriteOperations(viewContext: managedContext)))
+            return FavoritesViewController(coder: coder, viewModel: FavoritesViewModel(favoriteOperations: FavoriteOperations(viewContext: managedContext),movieService: WebService()))
         })
         let favoritesNavController = UINavigationController(rootViewController:favoritesVc)
-        favoritesNavController.tabBarItem = UITabBarItem(title: Constants.favorites, image: UIImage(systemName: "heart.fill"), tag: 0)
+        favoritesNavController.tabBarItem = UITabBarItem(title: Constants.favorites, image: UIImage(systemName: "heart.fill"), tag: 2)
         
-        initialViewController.viewControllers = [homeNavController,favoritesNavController]
+        initialViewController.viewControllers = [homeNavController,searchInputNavController,favoritesNavController]
         window?.rootViewController = initialViewController
         let indicatorView = LoadingView.shared.getCreatedView()
         window?.makeKeyAndVisible()

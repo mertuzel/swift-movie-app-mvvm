@@ -7,20 +7,18 @@
 
 import Foundation
 
-protocol HomeViewModelProtocol{
+protocol HomeViewModelProtocol : AnyObject{
     var delegate: HomeViewModelDelegate? { get set }
     var currentMovies: [Movie] { get }
     var upcomingMovies : [Movie] { get }
-    var isFavoriteError : Bool { get }
     var favoriteOperations : FavoriteOperationsProtocol { get }
+    var movieService : MovieServiceProtocol { get }
     func fetchDatas(completion : @escaping () -> Void)
     func loadCurrentMovies(completion : @escaping () -> Void)
     func initialize()
-    func isMovieFavorite(movieId : Int) -> Bool
-    func fetchFavoriteMovies(completion: @escaping () -> Void)
 }
 
-protocol HomeViewModelDelegate{
+protocol HomeViewModelDelegate : AnyObject{
     func reloadTableView()
     func fetchMoreIndicator(to value : Bool)
     func prepareTableView()
@@ -34,14 +32,12 @@ protocol HomeViewModelDelegate{
 final class HomeViewModel : HomeViewModelProtocol{
     var movieService : MovieServiceProtocol
     var favoriteOperations : FavoriteOperationsProtocol
-    var delegate: HomeViewModelDelegate?
+    weak var delegate: HomeViewModelDelegate?
     var currentMovies: [Movie] = []
     var upcomingMovies: [Movie] = []
-    var isFavoriteError: Bool = false
     
     var isAllFetched: Bool = false
     var currentPage : Int = 1
-    var favoriteMovies : [FavoriteMovie] = []
     var isLoading = true
     
     init(movieService: MovieServiceProtocol,favoriteOperations : FavoriteOperationsProtocol){
@@ -60,20 +56,13 @@ final class HomeViewModel : HomeViewModelProtocol{
         let dispatchGroup = DispatchGroup()
         
         dispatchGroup.enter()
+        dispatchGroup.enter()
         
         loadCurrentMovies() {
             dispatchGroup.leave()
         }
         
-        dispatchGroup.enter()
-        
         loadUpcomingMovies {
-            dispatchGroup.leave()
-        }
-        
-        dispatchGroup.enter()
-        
-        fetchFavoriteMovies {
             dispatchGroup.leave()
         }
         
@@ -87,14 +76,14 @@ final class HomeViewModel : HomeViewModelProtocol{
     
     func loadCurrentMovies(completion: @escaping () -> Void) {
         if(!isAllFetched){
-            guard let url = URL(string:MovieEndpoint.movies(page: currentPage, upcoming: false).url) else { return }
+            guard let url = URL(string:MovieEndpoint.movies(page: currentPage, moviesListTypes: .now_playing).url) else { return }
             
             movieService.getMovies(url: url) { [weak self] result in
                 switch result {
                 case .success(let movies):
                     self?.currentMovies += movies
-                    self?.currentPage+=1
-                    
+                    self?.currentPage += 1
+                        
                     if (movies.isEmpty){
                         self?.isAllFetched = true
                         self?.delegate?.fetchMoreIndicator(to: false)
@@ -111,7 +100,7 @@ final class HomeViewModel : HomeViewModelProtocol{
     }
     
     func loadUpcomingMovies(completion: @escaping () -> Void) {
-        guard let url = URL(string:MovieEndpoint.movies(page: currentPage, upcoming: true).url) else { return }
+        guard let url = URL(string:MovieEndpoint.movies(page: currentPage, moviesListTypes: .upcoming).url) else { return }
         
         movieService.getMovies(url: url) { [weak self] result in
             switch result {
@@ -124,24 +113,5 @@ final class HomeViewModel : HomeViewModelProtocol{
             
             completion()
         }
-    }
-    
-    func fetchFavoriteMovies(completion: @escaping () -> Void){
-        let result = favoriteOperations.fetchFavoriteList()
-        switch result {
-        case .success(let movieList):
-            favoriteMovies = movieList
-            
-        case .failure(_):
-            isFavoriteError = true
-        }
-        
-        completion()
-    }
-    
-    func isMovieFavorite(movieId: Int) -> Bool {
-        return  (favoriteMovies.firstIndex { favoriteMovie in
-            favoriteMovie.movieId as? Int == movieId
-        }) != nil
     }
 }
