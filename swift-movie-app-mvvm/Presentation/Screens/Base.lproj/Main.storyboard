@@ -311,7 +311,7 @@
                                 <rect key="frame" x="0.0" y="91" width="428" height="835"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="g4P-bj-1wp">
-                                        <rect key="frame" x="0.0" y="0.0" width="428" height="544"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="428" height="580"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="l4o-Uk-HyY">
                                                 <rect key="frame" x="0.0" y="0.0" width="428" height="200"/>
@@ -394,11 +394,11 @@
                                                     <constraint firstItem="dom-nu-jzU" firstAttribute="leading" secondItem="wD6-TT-Jd4" secondAttribute="trailing" constant="5" id="wME-NY-ymi"/>
                                                 </constraints>
                                             </view>
-                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8Ga-LX-9BU">
-                                                <rect key="frame" x="0.0" y="315" width="428" height="229"/>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8Ga-LX-9BU" userLabel="movieDesc">
+                                                <rect key="frame" x="0.0" y="315" width="428" height="50"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4ji-Gl-jgS">
-                                                        <rect key="frame" x="20" y="30" width="388" height="179"/>
+                                                        <rect key="frame" x="20" y="30" width="388" height="0.0"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
@@ -412,7 +412,32 @@
                                                     <constraint firstAttribute="trailing" secondItem="4ji-Gl-jgS" secondAttribute="trailing" constant="20" id="vmf-sA-5dG"/>
                                                 </constraints>
                                             </view>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wi9-Kg-lFR" userLabel="webView">
+                                                <rect key="frame" x="0.0" y="365" width="428" height="215"/>
+                                                <subviews>
+                                                    <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FbF-4x-NJp">
+                                                        <rect key="frame" x="0.0" y="15" width="428" height="200"/>
+                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <wkWebViewConfiguration key="configuration">
+                                                            <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                                                            <wkPreferences key="preferences"/>
+                                                        </wkWebViewConfiguration>
+                                                    </wkWebView>
+                                                </subviews>
+                                                <constraints>
+                                                    <constraint firstItem="FbF-4x-NJp" firstAttribute="leading" secondItem="wi9-Kg-lFR" secondAttribute="leading" id="2t3-CH-YKs"/>
+                                                    <constraint firstItem="FbF-4x-NJp" firstAttribute="top" secondItem="wi9-Kg-lFR" secondAttribute="top" constant="15" id="MRo-CG-p4y"/>
+                                                    <constraint firstAttribute="trailing" secondItem="FbF-4x-NJp" secondAttribute="trailing" id="Nsc-sD-niU"/>
+                                                    <constraint firstAttribute="height" constant="215" id="Xxz-sc-dqh"/>
+                                                    <constraint firstAttribute="bottom" secondItem="FbF-4x-NJp" secondAttribute="bottom" id="dUz-so-XSz"/>
+                                                </constraints>
+                                            </view>
                                         </subviews>
+                                        <constraints>
+                                            <constraint firstItem="wi9-Kg-lFR" firstAttribute="leading" secondItem="8Ga-LX-9BU" secondAttribute="leading" id="0DG-U9-11V"/>
+                                            <constraint firstItem="wi9-Kg-lFR" firstAttribute="top" secondItem="8Ga-LX-9BU" secondAttribute="bottom" id="Gbb-Ym-ev4"/>
+                                            <constraint firstItem="wi9-Kg-lFR" firstAttribute="trailing" secondItem="8Ga-LX-9BU" secondAttribute="trailing" id="Jxe-T5-aBF"/>
+                                        </constraints>
                                     </stackView>
                                 </subviews>
                                 <constraints>
@@ -471,6 +496,7 @@
                         <outlet property="movieRating" destination="YIB-wX-mws" id="563-bH-vhh"/>
                         <outlet property="movieTitle" destination="agM-TZ-x0D" id="VXu-u2-jW1"/>
                         <outlet property="releaseDate" destination="0wk-41-H20" id="YpS-5m-paP"/>
+                        <outlet property="webView" destination="FbF-4x-NJp" id="Q1o-bk-SgE"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="b4N-Tz-Ci6" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

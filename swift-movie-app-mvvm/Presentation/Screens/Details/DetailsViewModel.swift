@@ -24,6 +24,8 @@ protocol DetailsViewModelDelegate : AnyObject{
     func checkFavoriteButtonUI()
     func setError()
     func removeFavoriteButton()
+    func setupWebView(url : URL)
+    func hideYoutubeLoadingIndicator()
 }
 
 final class DetailsViewModel : DetailsViewModelProtocol{
@@ -52,6 +54,10 @@ final class DetailsViewModel : DetailsViewModelProtocol{
         
         getMovie {
             dispatchGroup.leave()
+            
+            self.getYoutubeVideo {
+                
+            }
         }
         getFavoriteInfo(){
             dispatchGroup.leave()
@@ -61,7 +67,6 @@ final class DetailsViewModel : DetailsViewModelProtocol{
             self?.delegate?.changeLoadingStatus(to: false)
             self?.isLoading = false
             self?.delegate?.setup()
-            
         }
     }
     
@@ -96,6 +101,26 @@ final class DetailsViewModel : DetailsViewModelProtocol{
             self.delegate?.removeFavoriteButton()
         }
         completion()
+    }
+    
+    func getYoutubeVideo(completion : @escaping () -> Void){
+        guard let movie = movie, movie.title != nil, !movie.title!.isEmpty, let query =  movie.title!.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ,let url = URL(string: MovieEndpoint.youtube(text: query).url) else {
+            return
+        }
+        
+        movieService.getYoutubeVideo(url: url){
+            result in
+            switch result {
+            case .success(let youtubeItem):
+                guard let url = URL(string:"https://www.youtube.com/embed/\(youtubeItem.id.videoId)") else { return }
+                self.delegate?.setupWebView(url: url)
+            case .failure(_):
+                self.delegate?.hideYoutubeLoadingIndicator()
+                return
+            }
+            
+            completion()
+        }
     }
     
     func toggleFavoriteState() {

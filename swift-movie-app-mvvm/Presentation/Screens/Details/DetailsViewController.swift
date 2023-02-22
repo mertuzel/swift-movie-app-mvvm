@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import WebKit
 
 final class DetailsViewController: UIViewController {
     @IBOutlet private weak var imageView: UIImageView!
@@ -13,9 +14,10 @@ final class DetailsViewController: UIViewController {
     @IBOutlet private weak var movieRating: UILabel!
     @IBOutlet private weak var releaseDate: UILabel!
     @IBOutlet private weak var movieDescription: UILabel!
+    @IBOutlet weak var webView: WKWebView!
     @IBOutlet weak var errorView: UIView!
-    
     private let viewModel: DetailsViewModelProtocol
+    
     private lazy var dateFormatterFrom : DateFormatter = {
         var formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_us")
@@ -28,6 +30,13 @@ final class DetailsViewController: UIViewController {
         formatter.locale = Locale(identifier: "en_us")
         formatter.dateFormat = "MMMM d, yyyy"
         return formatter
+    }()
+    
+    private let loadingIndicator : UIActivityIndicatorView = {
+        var indicator = UIActivityIndicatorView(style: .medium)
+        indicator.startAnimating()
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
     }()
     
     init?(coder: NSCoder, viewModel: DetailsViewModelProtocol) {
@@ -43,6 +52,8 @@ final class DetailsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.addSubview(loadingIndicator)
+        setConstraints()
         navigationItem.rightBarButtonItem = nil
         navigationItem.largeTitleDisplayMode = .never
         viewModel.getAllDatas()
@@ -50,6 +61,13 @@ final class DetailsViewController: UIViewController {
     
     @IBAction func onFavoriteButtonTap(_ sender: Any) {
         viewModel.toggleFavoriteState()
+    }
+    
+    func setConstraints(){
+        NSLayoutConstraint.activate([
+            self.loadingIndicator.centerXAnchor.constraint(equalTo: self.webView.centerXAnchor),
+            self.loadingIndicator.centerYAnchor.constraint(equalTo: self.webView.centerYAnchor),
+        ])
     }
 }
 
@@ -107,5 +125,24 @@ extension DetailsViewController : DetailsViewModelDelegate,IndicatorProtocol {
         }
     }
     
+    func setupWebView(url : URL){
+        webView.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: .new, context: nil)
+        DispatchQueue.main.async {
+            self.webView.load(URLRequest(url: url))
+        }
+    }
     
+    func hideYoutubeLoadingIndicator(){
+        DispatchQueue.main.async {
+            self.loadingIndicator.isHidden = true
+        }
+    }
+    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "estimatedProgress" {
+            if webView.estimatedProgress == 1.0 {
+                hideYoutubeLoadingIndicator()
+            }
+        }
+    }
 }

@@ -44,4 +44,22 @@ struct WebService : MovieServiceProtocol{
             }
         }.resume()
     }
+    
+    func getYoutubeVideo(url : URL, completion : @escaping(Result<YoutubeSearchResultItem,Error>) -> ()){
+        URLSession.shared.dataTask(with: url) { data, _, error in
+            if let error = error{
+                print(error.localizedDescription)
+                completion(.failure(error))
+            }
+            else if let data = data {
+                do{
+                    let results = try JSONDecoder().decode(YoutubeSearchResultResponse.self,from:data)
+                    completion(.success(results.items[0]))
+                }
+                catch{
+                    completion(.failure(error))
+                }
+            }
+        }.resume()
+    }
 }

@@ -10,4 +10,5 @@ import Foundation
 protocol MovieServiceProtocol{
     func getMovies(url : URL, completion : @escaping (Result<[Movie],Error>)->())
     func getMovie(url : URL, completion : @escaping (Result<Movie?,Error>)->())
+    func getYoutubeVideo(url : URL, completion : @escaping (Result<YoutubeSearchResultItem,Error>)->())
 }
